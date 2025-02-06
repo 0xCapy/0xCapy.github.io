@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="0xCapyHubo">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-12-11T19:57:26.000Z">
-<meta property="article:modified_time" content="2024-12-11T20:00:39.069Z">
+<meta property="article:modified_time" content="2024-12-17T16:34:57.779Z">
 <meta property="article:author" content="Hubo">
 <meta name="twitter:card" content="summary">
       <link rel="icon" href="">
@@ -131,45 +131,17 @@
 </mdui-navigation-drawer>
         <mdui-layout-main style="min-height: 800px;" id="main">
           <div style="padding-left: 16px;padding-right: 16px;" id="content">
-            <mdui-card variant="filled" style="padding: 16px;width: 100%;">
-  <div class="mdui-prose post" id="post-all">
-    <h1 style="margin-bottom: 8px;">
-      categories
-    </h1>
-    <span class="post-date">
-      <mdui-icon name="date_range" style="vertical-align: text-bottom;font-size: 18px;"></mdui-icon>
-      2024-12-11 19:57:26 &nbsp; <mdui-icon name="update"
-          style="vertical-align: text-bottom;font-size: 18px;"></mdui-icon>
-        2024-12-11 20:00:39
-    </span>
-    <br>
-    
-        
-                  <!-- photos gallery -->
-                  
-                      <!-- content -->
-                      
-  </div>
-</mdui-card>
-<script>
-  const $ = mdui.$;
-  $("#post-all").find("img").each((index, ele) => {
-    $(ele).replaceWith(`<a data-src="${$(ele).prop("src")}" class="fancybox-enabled" data-fancybox="picture" data-caption="${$(ele).prop("alt")}">${ele.outerHTML}</a>`)
-  });
-  Fancybox.bind(".fancybox-enabled", {
-    on: {
-      ready: () => {
-        $("mdui-top-app-bar").addClass("invisible")
-      }, close: () => {
-        $("mdui-top-app-bar").removeClass("invisible")
-      }
-    }
-  });
-  
-</script>
+            
+<link rel="stylesheet" href="/%20/css/categories.css">
 
     
-                    
+        <div class="mdui-prose">
+            <h1>CATEGORIES</h1>
+            <h3>No categories</h3>
+            <br>
+            
+                <br>
+                
               <br>
               <span></span>
           </div>
@@ -177,7 +149,7 @@
     </mdui-layout>
     
           <script>
-            mdui.setColorScheme('#2F4F4F');
+            mdui.setColorScheme('#f1cc96');
             const navigationDrawer = document.querySelector("#drawer");
             const mainlayout = document.querySelector("#main");
             const breakpointCondition = mdui.breakpoint();
