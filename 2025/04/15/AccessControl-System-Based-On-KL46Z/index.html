@@ -7,15 +7,22 @@
   <meta name="description" content="">
   <meta name="author" content="Hubo">
   <meta name="generator" content="Hexo 7.3.0">
-    <meta property="og:type" content="article">
+    <meta name="description" content="Building a KL46Z-Based Access Control SystemIn this post, I’ll walk you through setting up a door access control system using an MKL46Z256 microcontroller. The schematic below illustrates the hardware">
+<meta property="og:type" content="article">
 <meta property="og:title" content="AccessControl System Based On KL46Z">
 <meta property="og:url" content="https://hubozhu.com/2025/04/15/AccessControl-System-Based-On-KL46Z/index.html">
 <meta property="og:site_name" content="0xCapyHubo">
+<meta property="og:description" content="Building a KL46Z-Based Access Control SystemIn this post, I’ll walk you through setting up a door access control system using an MKL46Z256 microcontroller. The schematic below illustrates the hardware">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://hubozhu.com/AccessControl-System-Based-On-KL46Z/SystemStructrue.png">
+<meta property="og:image" content="https://hubozhu.com/AccessControl-System-Based-On-KL46Z/228Circuit.png">
+<meta property="og:image" content="https://hubozhu.com/AccessControl-System-Based-On-KL46Z/flow.png">
 <meta property="article:published_time" content="2025-04-15T15:40:32.000Z">
-<meta property="article:modified_time" content="2025-04-15T15:40:32.182Z">
+<meta property="article:modified_time" content="2025-04-15T16:30:42.177Z">
 <meta property="article:author" content="Hubo">
+<meta property="article:tag" content="Microcontroller">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hubozhu.com/AccessControl-System-Based-On-KL46Z/SystemStructrue.png">
       <link rel="icon" href="">
       <title>
         
@@ -140,7 +147,7 @@
       <mdui-icon name="date_range" style="vertical-align: text-bottom;font-size: 18px;"></mdui-icon>
       2025-04-15 16:40:32 &nbsp; <mdui-icon name="update"
           style="vertical-align: text-bottom;font-size: 18px;"></mdui-icon>
-        2025-04-15 16:40:32
+        2025-04-15 17:30:42
     </span>
     <br>
     <span>
@@ -152,11 +159,100 @@
         
           Tags
             
+              <a href="/tags/Microcontroller/">
+                Microcontroller
+              </a>
+              
                 
                   <!-- photos gallery -->
                   
                       <!-- content -->
-                      
+                      <h1 id="Building-a-KL46Z-Based-Access-Control-System"><a href="#Building-a-KL46Z-Based-Access-Control-System" class="headerlink" title="Building a KL46Z-Based Access Control System"></a>Building a KL46Z-Based Access Control System</h1><p>In this post, I’ll walk you through setting up a door access control system using an MKL46Z256 microcontroller. The schematic below illustrates the hardware design, including the LCD display, keypad interface, relay output, and more.</p>
+<hr>
+<h2 id="Overview-of-the-System"><a href="#Overview-of-the-System" class="headerlink" title="Overview of the System"></a>Overview of the System</h2><p><img src="/AccessControl-System-Based-On-KL46Z/SystemStructrue.png" alt="Access Control System Schematic"> </p>
+<ol>
+<li><strong>Microcontroller (MKL46Z256):</strong> Handles the system logic—reading keypad input, driving the LCD, and controlling the relay.</li>
+<li><strong>Power Supply Circuit:</strong> Ensures the microcontroller and peripherals get stable voltage. Includes an optional backup battery if you want the system to keep running briefly during power outages.</li>
+<li><strong>Keypad Connection:</strong> Allows users to enter access codes.</li>
+<li><strong>LCD Display:</strong> Provides feedback to the user (e.g., prompts to enter a code, success&#x2F;failure messages).</li>
+<li><strong>Relay Control:</strong> Drives a relay to lock&#x2F;unlock a door strike.</li>
+<li><strong>USB Circuit:</strong> Facilitates programming and debugging over USB (via the FRDM-KL46Z or a similar development board).</li>
+</ol>
+<hr>
+<h2 id="Step-by-Step-Hardware-Assembly"><a href="#Step-by-Step-Hardware-Assembly" class="headerlink" title="Step-by-Step Hardware Assembly"></a>Step-by-Step Hardware Assembly</h2><h3 id="Gather-Components"><a href="#Gather-Components" class="headerlink" title="Gather Components"></a>Gather Components</h3><ul>
+<li><strong>KL46Z development board</strong> (or your own custom PCB following the schematic).<br><img src="/AccessControl-System-Based-On-KL46Z/228Circuit.png" alt="Access Control System Schematic"> </li>
+<li><strong>Keypad (3x4 or 4x4)</strong> for code entry.</li>
+<li><strong>5V power supply</strong> (with appropriate regulation for 3.3V, if not already on the dev board).</li>
+<li><strong>Relay module</strong> rated for your door strike voltage and current.</li>
+<li><strong>LCD or segmented display</strong> (optional but recommended for user feedback).</li>
+<li><strong>Wires, jumpers,</strong> and a <strong>breadboard</strong> (if prototyping).</li>
+</ul>
+<details>
+<summary><strong>Pro Tip:</strong></summary>
+Use well-labeled wiring harnesses or a breakout board to avoid confusion when hooking up the keypad pins. 
+</details>
+
+<h3 id="Connect-the-KL46Z-Board"><a href="#Connect-the-KL46Z-Board" class="headerlink" title="Connect the KL46Z Board"></a>Connect the KL46Z Board</h3><ol>
+<li><strong>Power Lines:</strong> Connect the board’s 3.3V and GND to the correct rails on the breadboard or your PCB.</li>
+<li><strong>Keypad Pins:</strong> Wire each row and column pin to the matching GPIO pins defined in your software.  </li>
+<li><strong>LCD Pins (if used):</strong> Match the segment pins (LCD_Pxx) or use the dev board’s on-board LCD if available.</li>
+<li><strong>Relay Driver:</strong> Use a transistor or MOSFET and a diode (as shown in the schematic) to switch the relay coil.  </li>
+<li><strong>USB Connectivity:</strong> Attach a USB cable to the “OpenSDA” port (if using an FRDM board) for programming and debugging.</li>
+</ol>
+<details>
+<summary><strong>My Experience:</strong></summary>
+I found it helpful to label each wire on both ends, especially for the keypad and LCD segments, to avoid swapping rows/columns.
+</details>
+
+<hr>
+<h2 id="Software-Setup-and-Programming"><a href="#Software-Setup-and-Programming" class="headerlink" title="Software Setup and Programming"></a>Software Setup and Programming</h2><h3 id="3-1-Installing-Required-Tools"><a href="#3-1-Installing-Required-Tools" class="headerlink" title="3.1 Installing Required Tools"></a>3.1 Installing Required Tools</h3><ul>
+<li><strong>ARM Mbed Studio</strong> or another compatible IDE.</li>
+<li><strong>ARM Mbed OS library</strong> loaded in your project.</li>
+<li><strong>Clone The Repo</strong> <a target="_blank" rel="noopener" href="https://github.com/0xCapy/DoorAccessControl.git">https://github.com/0xCapy/DoorAccessControl.git</a></li>
+<li><strong>The work flow of it is shown below</strong><br><img src="/AccessControl-System-Based-On-KL46Z/flow.png" alt="Access Control System Schematic"></li>
+</ul>
+<h3 id="Writing-the-Firmware"><a href="#Writing-the-Firmware" class="headerlink" title="Writing the Firmware"></a>Writing the Firmware</h3><ol>
+<li><strong>Initialize Peripherals:</strong><br>Configure the GPIO pins for the keypad as inputs (with pull-ups) and the relay as an output.  </li>
+<li><strong>LCD Setup (Optional):</strong><br>Initialize the on-board or external LCD driver if present.  </li>
+<li><strong>Main Loop:</strong>  <ul>
+<li>Read keypad input.  </li>
+<li>Validate access codes.  </li>
+<li>Update LCD messages.  </li>
+<li>Toggle relay if the code is correct or if a supervisor command is entered.</li>
+</ul>
+</li>
+</ol>
+<details>
+<summary><strong>Pro Tip:</strong></summary>
+Use interrupt-driven or RTOS-based tasks to keep the system responsive, especially if you need to poll the keypad or drive a display in parallel.
+</details>
+
+<h3 id="Flash-and-Test"><a href="#Flash-and-Test" class="headerlink" title="Flash and Test"></a>Flash and Test</h3><ul>
+<li><strong>Connect USB</strong> from your PC to the FRDM-KL46Z board.  </li>
+<li><strong>Compile &amp; Download</strong> your .bin file using Mbed Studio or the <code>mbed-cli</code>.  </li>
+<li><strong>Open a Serial Monitor</strong> (e.g., in Mbed Studio) to read any debug <code>printf()</code> statements.</li>
+</ul>
+<hr>
+<h2 id="Testing-and-Validation"><a href="#Testing-and-Validation" class="headerlink" title="Testing and Validation"></a>Testing and Validation</h2><ol>
+<li><strong>Power On</strong> the system and confirm the microcontroller boots properly (LED indicators or debug output).  </li>
+<li><strong>Enter a Test Code</strong> on the keypad. Check that the LCD updates or that debug prints appear on serial.  </li>
+<li><strong>Relay Activation:</strong> Use a simple code (like “1234”) and verify the relay coil energizes or the door strike toggles.  </li>
+<li><strong>Supervisor Mode:</strong> If you implemented a higher-level access code, confirm you can change the default code.</li>
+</ol>
+<details>
+<summary><strong>My Experience:</strong></summary>
+During my testing, the biggest issues came from misreading the keypad wiring. Double-check row and column configurations before concluding your firmware is at fault.
+</details>
+
+<hr>
+<h2 id="Tips"><a href="#Tips" class="headerlink" title="Tips"></a>Tips</h2><ul>
+<li><strong>Label Everything:</strong> Reduces wiring confusion and speeds up debugging.</li>
+<li><strong>Use a Dev Board First:</strong> Easier to isolate problems and test new ideas before committing to a custom PCB.</li>
+<li><strong>Incremental Testing:</strong> Validate small sections (keypad, LCD, relay) independently before combining them.</li>
+<li><strong>Power Budget:</strong> If you need standby operation during power outages, calculate battery capacity requirements ahead of time.</li>
+</ul>
+<hr>
+
   </div>
 </mdui-card>
 <script>
