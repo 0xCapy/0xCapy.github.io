@@ -1441,7 +1441,7 @@ pre code {
     vertical-align: middle;
   }
   .links-of-author a::before {
-    background: #40fff4;
+    background: #ec1f18;
     display: inline-block;
     margin-right: 3px;
     transform: translateY(-2px);
@@ -3099,5 +3099,49 @@ header.header {
     object-fit: cover;
     display: block;
     border-radius: 12px;
+  }
+}
+/* Home cards: force consistent card style + align footer */
+@media (min-width: 900px) {
+  .home-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+    align-items: stretch;
+  }
+  .home-grid .post-block {
+    box-sizing: border-box;
+    margin: 0 !important;
+    padding: 16px 16px 12px;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .home-grid .post-body {
+    flex: 1 1 auto;
+  }
+  .home-grid .post-button {
+    margin-top: auto;
+  }
+  .home-grid a.more-link {
+    margin-top: auto;
+    align-self: center;
+  }
+  .home-grid .post-body img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    display: block;
+    border-radius: 12px;
+  }
+}
+@media (min-width: 900px) {
+  .home-grid .post-body {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
   }
 }
