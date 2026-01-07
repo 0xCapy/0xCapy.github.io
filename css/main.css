@@ -1441,7 +1441,7 @@ pre code {
     vertical-align: middle;
   }
   .links-of-author a::before {
-    background: #ff3981;
+    background: #40fff4;
     display: inline-block;
     margin-right: 3px;
     transform: translateY(-2px);
@@ -3074,5 +3074,30 @@ header.header {
   }
   .comments {
     padding: 10px 12px;
+  }
+}
+/* Home-only grid: enabled by JS adding .home-grid on the list container */
+@media (min-width: 900px) {
+  .home-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+    align-items: start;
+  }
+  .home-grid .post-block {
+    margin: 0;
+    padding: 16px 16px 12px;
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .home-grid .post-title {
+    margin-bottom: 8px;
+  }
+  .home-grid .post-body img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    display: block;
+    border-radius: 12px;
   }
 }

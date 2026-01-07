@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hubozhu.com","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"style":"flat"},"fold":{"enable":true,"height":500},"language":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="A compact access-control unit based on KL46Z.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Access Control on KL46Z">
+<meta property="og:url" content="https://hubozhu.com/2025/01/07/Doorcontrol/index.html">
+<meta property="og:site_name" content="Hubo&#39;s Blog">
+<meta property="og:description" content="A compact access-control unit based on KL46Z.">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://hubozhu.com/images/post1/3d.png">
+<meta property="og:image" content="https://hubozhu.com/images/post1/Workflow.png">
+<meta property="og:image" content="https://hubozhu.com/images/post1/sch.png">
+<meta property="og:image" content="https://hubozhu.com/images/post1/pcb.png">
+<meta property="og:image" content="https://hubozhu.com/images/post1/3d.png">
+<meta property="article:published_time" content="2025-01-07T00:00:00.000Z">
+<meta property="article:modified_time" content="2026-01-07T21:57:10.440Z">
+<meta property="article:author" content="Hubo Zhu">
+<meta property="article:tag" content="Embedded">
+<meta property="article:tag" content="Control">
+<meta property="article:tag" content="Firmware">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hubozhu.com/images/post1/3d.png">
+
+
+<link rel="canonical" href="https://hubozhu.com/2025/01/07/Doorcontrol/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://hubozhu.com/2025/01/07/Doorcontrol/","path":"2025/01/07/Doorcontrol/","title":"Access Control on KL46Z"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Access Control on KL46Z | Hubo's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hubo's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Notes on Robotics, ML & EEE and more</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Workflow-as-a-contract-not-just-a-diagram"><span class="nav-number">1.</span> <span class="nav-text">Workflow as a contract, not just a diagram</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hardware-designing-for-power-events-and-physical-boundaries"><span class="nav-number">2.</span> <span class="nav-text">Hardware: designing for power events and physical boundaries</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Power-architecture-I-learned-to-distrust-%E2%80%9Csoftware-managed-resilience%E2%80%9D"><span class="nav-number">2.1.</span> <span class="nav-text">Power architecture: I learned to distrust “software-managed resilience”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Keypad-and-LCD-minimal-UI-forces-high-signal-to-noise-decisions"><span class="nav-number">2.2.</span> <span class="nav-text">Keypad and LCD: minimal UI forces high signal-to-noise decisions</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Relay-driver-actuation-is-a-safety-boundary"><span class="nav-number">2.3.</span> <span class="nav-text">Relay driver: actuation is a safety boundary</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PCB-when-the-design-becomes-real"><span class="nav-number">3.</span> <span class="nav-text">PCB: when the design becomes real</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3D-sanity-check-the-hidden-part-of-%E2%80%9Cdeployable%E2%80%9D"><span class="nav-number">4.</span> <span class="nav-text">3D sanity check: the hidden part of “deployable”</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Persistence-Flash-is-not-a-database-so-treat-it-like-a-failure-surface"><span class="nav-number">5.</span> <span class="nav-text">Persistence: Flash is not a database, so treat it like a failure surface</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#What-I-would-improve-next-and-why"><span class="nav-number">6.</span> <span class="nav-text">What I would improve next (and why)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Code"><span class="nav-number">7.</span> <span class="nav-text">Code</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Hubo Zhu"
+      src="/images/avatar.JPG">
+  <p class="site-author-name" itemprop="name">Hubo Zhu</p>
+  <div class="site-description" itemprop="description">EEE Student</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">1</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://hubozhu.com/2025/01/07/Doorcontrol/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.JPG">
+      <meta itemprop="name" content="Hubo Zhu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hubo's Blog">
+      <meta itemprop="description" content="EEE Student">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Access Control on KL46Z | Hubo's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Access Control on KL46Z
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-01-07 00:00:00" itemprop="dateCreated datePublished" datetime="2025-01-07T00:00:00Z">2025-01-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-01-07 21:57:10" itemprop="dateModified" datetime="2026-01-07T21:57:10Z">2026-01-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Projects/" itemprop="url" rel="index"><span itemprop="name">Projects</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p><img src="/images/post1/3d.png" alt="cover"></p>
+<p>A compact access-control unit based on KL46Z.</p>
+<span id="more"></span>
+
+<p>I built a compact access-control unit around the NXP FRDM-KL46Z (MKL46Z256VLL4). It takes passwords from a 3×4 matrix keypad, shows immediate feedback on a 4-digit segmented LCD (SLCD), and actuates a door strike through a relay driver. Users and administrators follow separate workflows, and credentials are stored in on-chip Flash so the device remains functional after resets or power loss. The more important goal, however, was not the feature list—it was to make the system behave like a deployable device: predictable interaction, safe defaults, and resilience designed into the hardware rather than “patched” in firmware.</p>
+<h2 id="Workflow-as-a-contract-not-just-a-diagram"><a href="#Workflow-as-a-contract-not-just-a-diagram" class="headerlink" title="Workflow as a contract, not just a diagram"></a>Workflow as a contract, not just a diagram</h2><p>In embedded projects, the fastest way to create bugs is to treat the workflow as something you “explain afterwards.” I used the workflow as a behavioural contract and tried to keep the firmware honest to it. Password entry is explicitly terminated by ‘#’, so the user never wonders whether the device is still listening, and the device never has to guess when the input ends. Admin mode is deliberately harder to enter: a “hold ‘#’” gesture prevents accidental entry, and an admin password gate prevents destructive operations from being triggered by casual keypad use. Once inside admin mode, the actions are intentionally limited to what is operationally meaningful on a minimal UI: select a user slot, then edit or delete.</p>
+<p>This structure matters because the interface is constrained. With only a keypad and a 4-digit display, ambiguity becomes visible immediately. The constraint is a design tool: it forces the interaction to be deterministic and pushes complexity away from the user and into a state machine that can be tested.</p>
+<p><img src="/images/post1/Workflow.png" alt="Firmware workflow"></p>
+<h2 id="Hardware-designing-for-power-events-and-physical-boundaries"><a href="#Hardware-designing-for-power-events-and-physical-boundaries" class="headerlink" title="Hardware: designing for power events and physical boundaries"></a>Hardware: designing for power events and physical boundaries</h2><p>Most “it works on the bench” prototypes quietly assume stable power and forgiving loads. A door controller is the opposite: it sits on a wall, experiences interruptions, and interfaces with inductive hardware. The hardware therefore had to be a resilience layer, not just a carrier for the MCU.</p>
+<p>The schematic was organised into functional blocks—power supply, USB interface, LCD mapping, keypad header, crystal oscillator, relay control, and MCU core—so each boundary can be reasoned about independently. That separation was not just for readability; it was a way to force myself to ask the right questions per block. Where does noise enter? What fails first? What happens on partial power? If a fault occurs, does the system fail closed?</p>
+<p><img src="/images/post1/sch.png" alt="Schematic overview"></p>
+<h3 id="Power-architecture-I-learned-to-distrust-“software-managed-resilience”"><a href="#Power-architecture-I-learned-to-distrust-“software-managed-resilience”" class="headerlink" title="Power architecture: I learned to distrust “software-managed resilience”"></a>Power architecture: I learned to distrust “software-managed resilience”</h3><p>Power ended up being the most instructive part of the build. The common temptation is to detect outages in firmware and then “switch to battery.” The problem is that the MCU is least trustworthy exactly when you need it to act—during a supply collapse and potential brownout. I therefore chose a hardware-defined source selection path (diode OR-ing) so AC-derived 5 V, USB 5 V, and a Li-ion backup path can coexist and the board naturally runs from the highest available source. Charging is handled by a dedicated IC so the battery remains ready without requiring any application-level control.</p>
+<p>This is deliberately conservative. It is not the most efficiency-optimised solution, but it avoids subtle timing assumptions and reduces the risk of oscillating brownouts or undefined intermediate states. In other words, it makes power behaviour boring and predictable—which is exactly what firmware wants.</p>
+<h3 id="Keypad-and-LCD-minimal-UI-forces-high-signal-to-noise-decisions"><a href="#Keypad-and-LCD-minimal-UI-forces-high-signal-to-noise-decisions" class="headerlink" title="Keypad and LCD: minimal UI forces high signal-to-noise decisions"></a>Keypad and LCD: minimal UI forces high signal-to-noise decisions</h3><p>The keypad interface is a classic embedded reliability trap. Without disciplined scanning and debounce, the system either misses presses or double-counts them, and users blame the device rather than the code. Here the hardware is simple (a matrix keypad header) and the reliability comes from the firmware producing stable key events. The LCD mapping uses the KL46Z SLCD capability so the CPU does not need to bit-bang segments. With only four digits, the display strategy must be restrained: show the most recent digits during entry, and keep prompts short and consistent rather than trying to “explain everything” on-screen.</p>
+<h3 id="Relay-driver-actuation-is-a-safety-boundary"><a href="#Relay-driver-actuation-is-a-safety-boundary" class="headerlink" title="Relay driver: actuation is a safety boundary"></a>Relay driver: actuation is a safety boundary</h3><p>Unlocking is not just another GPIO toggle; it is a physical action that must be explicit, bounded, and electrically well-behaved. The relay is driven via a transistor stage sized for saturation, with a flyback diode to clamp inductive transients. The goal is not only to switch the load reliably, but also to ensure that switching does not inject disturbances into the logic supply that could cause resets or undefined states. A subtle but important mindset shift here is treating the relay path as part of system integrity: if actuation destabilises the MCU, then “unlock” becomes a denial-of-service vector and a debugging nightmare.</p>
+<h2 id="PCB-when-the-design-becomes-real"><a href="#PCB-when-the-design-becomes-real" class="headerlink" title="PCB: when the design becomes real"></a>PCB: when the design becomes real</h2><p>A schematic that works is not yet a board that behaves. The PCB layout forces you to confront what matters physically: where current actually flows, how return paths behave, how connectors will be used, and how much “engineering intent” survives the move from a tidy diagram to copper.</p>
+<p>I tried to keep the layout aligned with the functional boundaries: power and high-current paths are compact, the MCU and decoupling are treated as the stability core, and headers are placed so wiring is straightforward in an enclosure. Even on a small two-layer board, these decisions dominate robustness far more than any single clever circuit trick. The layout also makes it easier to reason about failures: when something goes wrong, you can localise it to a block instead of hunting across an entangled board.</p>
+<p><img src="/images/post1/pcb.png" alt="PCB layout"></p>
+<h2 id="3D-sanity-check-the-hidden-part-of-“deployable”"><a href="#3D-sanity-check-the-hidden-part-of-“deployable”" class="headerlink" title="3D sanity check: the hidden part of “deployable”"></a>3D sanity check: the hidden part of “deployable”</h2><p>The 3D render is not an aesthetic add-on; it is an engineering tool. It catches problems that are expensive to discover late: connector clearance, component height conflicts, and the practical alignment between the display, keypad cable, and enclosure openings. This is the stage where the project stops being an electronics exercise and starts resembling a small product. If the board cannot be assembled cleanly, mounted reliably, and connected without strain, then it is not deployable no matter how correct the firmware is.</p>
+<p><img src="/images/post1/3d.png" alt="3D render"></p>
+<h2 id="Persistence-Flash-is-not-a-database-so-treat-it-like-a-failure-surface"><a href="#Persistence-Flash-is-not-a-database-so-treat-it-like-a-failure-surface" class="headerlink" title="Persistence: Flash is not a database, so treat it like a failure surface"></a>Persistence: Flash is not a database, so treat it like a failure surface</h2><p>Storing credentials in Flash sounds simple until you consider partial writes. Power can fail mid-update, and Flash does not provide transactional semantics by default. The key design choice was to validate stored data before trusting it and to prefer safe rejection over optimistic acceptance. For access control, false negatives are annoying; false positives are unacceptable. That asymmetry shapes the storage logic and reinforces the broader theme: when uncertain, fail closed.</p>
+<h2 id="What-I-would-improve-next-and-why"><a href="#What-I-would-improve-next-and-why" class="headerlink" title="What I would improve next (and why)"></a>What I would improve next (and why)</h2><p>If I iterate a second revision, I would start with boundary hardening rather than new features. Electrically, I would strengthen safety separation around the mains-derived supply and improve manufacturability with clearer test points and bring-up hooks. System-wise, I would formalise a low-power story so that battery-backed operation is not just “it stays on,” but “it stays on predictably for a quantified duration.” These are not headline-grabbing changes, but they are exactly what turns a working prototype into something trustworthy in day-to-day use.</p>
+<h2 id="Code"><a href="#Code" class="headerlink" title="Code"></a>Code</h2><p>Source code are available here: <a target="_blank" rel="noopener" href="https://github.com/0xCapy/DoorAccessControl">https://github.com/0xCapy/DoorAccessControl</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Embedded/" rel="tag"># Embedded</a>
+              <a href="/tags/Control/" rel="tag"># Control</a>
+              <a href="/tags/Firmware/" rel="tag"># Firmware</a>
+          </div>
+
+        
+
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Hubo Zhu</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script src="/js/home-grid.js"></script>
+
+</body>
+</html>
