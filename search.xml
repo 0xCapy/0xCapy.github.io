@@ -2,21 +2,6 @@
 <search>
   <entry>
     <title>Access Control on KL46Z</title>
-    <url>/2025/01/07/test/</url>
-    <content><![CDATA[<p><img src="/images/post1/3d.png" alt="cover"></p>
-<p>A compact access-control unit based on KL46Z.</p>
-<span id="more"></span>]]></content>
-      <categories>
-        <category>Projects</category>
-      </categories>
-      <tags>
-        <tag>Embedded</tag>
-        <tag>Control</tag>
-        <tag>Firmware</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Access Control on KL46Z</title>
     <url>/2025/01/07/Doorcontrol/</url>
     <content><![CDATA[<p><img src="/images/post1/3d.png" alt="cover"></p>
 <p>A compact access-control unit based on KL46Z.</p>
@@ -89,6 +74,15 @@
       <tags>
         <tag>Control</tag>
         <tag>MachineLearning</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Hello World</title>
+    <url>/2024/12/21/test/</url>
+    <content><![CDATA[<p>Here is nothing</p>
+<span id="more"></span>]]></content>
+      <tags>
+        <tag>Test</tag>
       </tags>
   </entry>
 </search>
