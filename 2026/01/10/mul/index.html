@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hubozhu.com","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"style":"flat"},"fold":{"enable":true,"height":500},"language":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="Wallace Tree, Scaling, and the Real Cost of “Fast”">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Pipelined INT8 Vector MAC on FPGA">
+<meta property="og:url" content="https://hubozhu.com/2026/01/10/mul/index.html">
+<meta property="og:site_name" content="Hubo&#39;s Blog&lt;br&gt;沪博的小窝">
+<meta property="og:description" content="Wallace Tree, Scaling, and the Real Cost of “Fast”">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://hubozhu.com/images/post3/wallace_cover.png">
+<meta property="og:image" content="https://hubozhu.com/images/post3/str.png">
+<meta property="og:image" content="https://hubozhu.com/images/post3/eff.png">
+<meta property="og:image" content="https://hubozhu.com/images/post3/pow.png">
+<meta property="article:published_time" content="2026-01-10T17:00:00.000Z">
+<meta property="article:modified_time" content="2026-01-10T18:24:11.644Z">
+<meta property="article:author" content="Hubo Zhu&lt;br&gt;朱沪博">
+<meta property="article:tag" content="FPGA">
+<meta property="article:tag" content="Verilog">
+<meta property="article:tag" content="RTL">
+<meta property="article:tag" content="Architecture">
+<meta property="article:tag" content="Vivado">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hubozhu.com/images/post3/wallace_cover.png">
+
+
+<link rel="canonical" href="https://hubozhu.com/2026/01/10/mul/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://hubozhu.com/2026/01/10/mul/","path":"2026/01/10/mul/","title":"Pipelined INT8 Vector MAC on FPGA"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Pipelined INT8 Vector MAC on FPGA | Hubo's Blog<br>沪博的小窝</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hubo's Blog<br>沪博的小窝</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">To record something interesting (maybe)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Worst-case-sizing-as-a-first-class-constraint"><span class="nav-number">1.</span> <span class="nav-text">Worst-case sizing as a first-class constraint</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#What-the-Wallace-tree-is-actually-buying"><span class="nav-number">2.</span> <span class="nav-text">What the Wallace tree is actually buying</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Pipeline-structure-and-a-latency-model-that-stays-simple"><span class="nav-number">3.</span> <span class="nav-text">Pipeline structure and a latency model that stays simple</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Post-implementation-results-where-scaling-is-%E2%80%9Cworth-it%E2%80%9D"><span class="nav-number">4.</span> <span class="nav-text">Post-implementation results: where scaling is “worth it”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#A-more-honest-takeaway-on-Wallace-trees"><span class="nav-number">5.</span> <span class="nav-text">A more honest takeaway on Wallace trees</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Code"><span class="nav-number">6.</span> <span class="nav-text">Code</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Hubo Zhu<br>朱沪博"
+      src="/images/avatar.JPG">
+  <p class="site-author-name" itemprop="name">Hubo Zhu<br>朱沪博</p>
+  <div class="site-description" itemprop="description">ECE Undergraduate in UK, interested in robotics, machine learning and embedded systems.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/0xCapy" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;0xCapy" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yourname@gmail.com" title="E-Mail → mailto:yourname@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://hubozhu.com/2026/01/10/mul/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.JPG">
+      <meta itemprop="name" content="Hubo Zhu<br>朱沪博">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hubo's Blog<br>沪博的小窝">
+      <meta itemprop="description" content="ECE Undergraduate in UK, interested in robotics, machine learning and embedded systems.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Pipelined INT8 Vector MAC on FPGA | Hubo's Blog<br>沪博的小窝">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Pipelined INT8 Vector MAC on FPGA
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2026-01-10 17:00:00 / Modified: 18:24:11" itemprop="dateCreated datePublished" datetime="2026-01-10T17:00:00Z">2026-01-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Projects/" itemprop="url" rel="index"><span itemprop="name">Projects</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p style="text-align:center;">
+  <img src="/images/post3/wallace_cover.png" alt="Wallace tree reduction sketch" style="width:40%; height:70%;" />
+</p>
+Wallace Tree, Scaling, and the Real Cost of “Fast”
+
+<span id="more"></span>
+
+
+
+
+<p>At a glance, the Wallace tree looks like an elegant hack: take a tall matrix of partial products and squash it into two rows quickly, then finish with a normal carry-propagate adder. What becomes more interesting in practice is that Wallace is not simply “faster multiplication”. It is a statement about where you want complexity to live. Instead of letting carries ripple all the way across at every intermediate addition, you keep carries local by using carry-save compression (3:2 compressors, i.e., full adders) until the very end. In other words, Wallace postpones global carry resolution and spends area and routing to buy down logic depth. On an FPGA, that trade is never purely logical; it is also physical. The structure you choose shapes the placement and wiring, which can matter as much as the gate-level critical path.</p>
+<p style="text-align:center;">
+  <img src="/images/post3/str.png" alt="pipline stage" style="width:70%; height:auto;" />
+</p>
+
+<h3 id="Worst-case-sizing-as-a-first-class-constraint"><a href="#Worst-case-sizing-as-a-first-class-constraint" class="headerlink" title="Worst-case sizing as a first-class constraint"></a>Worst-case sizing as a first-class constraint</h3><p>Before discussing clocks and lanes, the arithmetic bound has to be explicit. With unsigned INT8 operands, the maximum product is</p>
+<p>$$<br>P_{\max} &#x3D; 255 \times 255 &#x3D; 65025 &#x3D; 2^{16} - 511.<br>$$</p>
+<p>This single number governs the widths of the multiplier output, the adder tree, and the accumulator. The objective here is not to minimise bitwidth at all costs; it is to choose widths that are safe, structurally consistent across $N$, and convenient for pipelining.</p>
+<div class="table-wrap">
+
+<table>
+<thead>
+<tr>
+<th>Block</th>
+<th>Operand range</th>
+<th align="right">Max. output</th>
+<th align="right">Chosen width</th>
+<th align="right">Latency</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>8×8 Wallace multiplier</td>
+<td>$(0 \ldots 255)$</td>
+<td align="right">$(255^2 &#x3D; 65025)$</td>
+<td align="right">17-bit</td>
+<td align="right">3 stages</td>
+</tr>
+<tr>
+<td>Adder tree $(N &#x3D; 1\text{–}16)$</td>
+<td>$(N)$ products</td>
+<td align="right">$(N \times 65025)$</td>
+<td align="right">20 bit (at $N&#x3D;16$)</td>
+<td align="right">$\max(2,\lceil \log_2 N \rceil)$</td>
+</tr>
+<tr>
+<td>Accumulator (up to 1000 beats)</td>
+<td>dot products</td>
+<td align="right">$(1000 \times 65025)$</td>
+<td align="right">32-bit</td>
+<td align="right">1 cycle</td>
+</tr>
+</tbody></table>
+</div>
+
+<p>There are three decisions embedded in Table I that are easy to miss if you only look at the final RTL. First, the multiplier output is carried on 17 bits. While $65025$ fits in 16 bits, the additional guard bit makes the reduction and final CPA less fragile, especially when the multiplier is deeply pipelined and internal carries are being staged. Second, the adder tree width is driven by the worst-case merge of $N$ products, with the upper bound</p>
+<p>$$<br>S_{\max}(N) &#x3D; N \cdot 65025,<br>$$</p>
+<p>and the tree depth is treated as a structural parameter rather than an afterthought,</p>
+<p>$$<br>L_{\text{tree}}(N) &#x3D; \max(2,\lceil \log_2 N \rceil).<br>$$</p>
+<p>Third, the accumulator is kept at 32 bits even though $1000 \times 65025 &#x3D; 65{,}025{,}000$ would fit in fewer bits. On FPGA, 32-bit arithmetic is a comfortable “native” size that simplifies integration, and it gives headroom for extending the design (wider operands, higher beat counts) without reopening every bound.</p>
+<h3 id="What-the-Wallace-tree-is-actually-buying"><a href="#What-the-Wallace-tree-is-actually-buying" class="headerlink" title="What the Wallace tree is actually buying"></a>What the Wallace tree is actually buying</h3><p>The Wallace tree is best described as a parallel reduction scheme for partial products. An $8\times 8$ multiplier generates eight shifted rows of partial products. If you add them naively, you either do it sequentially (shift-add over multiple cycles) or you build an array-like reduction where carries propagate repeatedly across the width. Wallace changes the game by using 3:2 compression to reduce the height of the matrix quickly without propagating carries globally at each step.</p>
+<p>The practical effect is that the “hard” part of the computation is reorganised into a sequence of local operations. Each compression layer shortens the vertical dimension of the bit matrix and only emits carries to the next higher-weight column. This is why Wallace trees pair naturally with pipelining: you can register between compression layers and keep the combinational depth under control. The final CPA is the only place where full carry propagation is allowed to happen.</p>
+<p>The less romantic part is that on FPGA, the “local” nature of compression is not guaranteed to be local in placement. A Wallace tree produces a dense pattern of adders with a wide fan-in&#x2F;fan-out across adjacent bit columns. With small widths like 8×8 this is manageable, but once you replicate lanes and add a pipelined adder tree on top, routing becomes a real cost centre. This is the main reason I did not treat “Wallace tree &#x3D; fastest” as a blanket truth; instead, I treated it as a design choice whose value must be validated post-implementation, not just post-synthesis.</p>
+<h3 id="Pipeline-structure-and-a-latency-model-that-stays-simple"><a href="#Pipeline-structure-and-a-latency-model-that-stays-simple" class="headerlink" title="Pipeline structure and a latency model that stays simple"></a>Pipeline structure and a latency model that stays simple</h3><p>The multiplier is implemented as a three-stage pipelined Wallace reduction, followed by a final carry-propagate addition. Lane merging is done with a registered binary adder tree whose depth scales with $\log_2 N$. The accumulator adds one more registered stage under beat control. With this structure, the total latency remains predictable and the initiation interval stays at one cycle once the pipeline is filled. A simple mental model for the end-to-end latency in cycles is</p>
+<p>$$<br>L_{\text{total}}(N) \approx 3 + \log_2(N) + 1,<br>$$</p>
+<p>where the first term is the multiplier pipeline depth, the second term is the merging tree depth, and the final term is the accumulator stage. This is not meant to be a formal proof; it is meant to keep the design composable. When $N$ changes, the story does not change, only the constants do.</p>
+<h3 id="Post-implementation-results-where-scaling-is-“worth-it”"><a href="#Post-implementation-results-where-scaling-is-“worth-it”" class="headerlink" title="Post-implementation results: where scaling is “worth it”"></a>Post-implementation results: where scaling is “worth it”</h3><p>After implementation, I compared configurations using an effective throughput definition</p>
+<p>$$<br>TP &#x3D; \text{Lanes} \times F_{\max},<br>$$</p>
+<p>and then normalised it both by area (CLBeq) and by power. The point here is to make scaling effects visible. If $N$ doubles but $F_{\max}$ collapses, the architectural decision is not actually buying throughput.</p>
+<div class="table-wrap">
+
+<table>
+<thead>
+<tr>
+<th>Config</th>
+<th align="right">Latency [ns]</th>
+<th align="right">CLBeq</th>
+<th align="right">$F_{\max}$ [MHz]</th>
+<th align="right">Power [W]</th>
+<th align="right">$TP$</th>
+<th align="right">$TP&#x2F;\text{CLB}$</th>
+<th align="right">$TP&#x2F;W$</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1×8×8</td>
+<td align="right">4.736</td>
+<td align="right">39.6</td>
+<td align="right">211</td>
+<td align="right">0.010</td>
+<td align="right">211</td>
+<td align="right">5.33</td>
+<td align="right">21.1</td>
+</tr>
+<tr>
+<td>4×8×8</td>
+<td align="right">4.603</td>
+<td align="right">133.85</td>
+<td align="right">217</td>
+<td align="right">0.023</td>
+<td align="right">868</td>
+<td align="right">6.49</td>
+<td align="right">37.7</td>
+</tr>
+<tr>
+<td>8×8×8</td>
+<td align="right">4.780</td>
+<td align="right">285.85</td>
+<td align="right">209</td>
+<td align="right">0.042</td>
+<td align="right">1672</td>
+<td align="right">6.23</td>
+<td align="right">39.8</td>
+</tr>
+</tbody></table>
+</div>
+
+<p>The most useful conclusion from Table III is that scaling is not monotonic in “goodness”. The 4-lane configuration delivers the best throughput per area, which is a strong indicator that it sits near the efficient knee of this design’s scaling curve. The 8-lane configuration leads throughput per watt, which is consistent with amortising shared overheads, but it gives up some area efficiency, and it is also the most exposed to routing pressure. That observation is aligned with the earlier Wallace-tree reflection: once the design becomes physically dense, timing and power are no longer driven only by logical depth. They are driven by how hard the placer&#x2F;router has to work to keep high-activity signals short and well-clustered.</p>
+<div style="display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap;">
+  <img src="/images/post3/eff.png" alt="Efficiency vs area (TP/CLB)" style="flex:1 1 360px; max-width:48%; height:auto;" />
+  <img src="/images/post3/pow.png" alt="Power vs area (TP/W)" style="flex:1 1 360px; max-width:48%; height:auto;" />
+</div>
+
+
+
+<h3 id="A-more-honest-takeaway-on-Wallace-trees"><a href="#A-more-honest-takeaway-on-Wallace-trees" class="headerlink" title="A more honest takeaway on Wallace trees"></a>A more honest takeaway on Wallace trees</h3><p>If I had to compress the Wallace-tree lesson into one sentence, it would be this: Wallace is a technique for trading carry propagation depth for compressor density, and on FPGA that trade is mediated by routing. In small multipliers, Wallace often “just works” and gives you a clean pipelinable core. In a scalable lane-based design, Wallace becomes one of several interacting structures that collectively decide whether the design is compute-bound or wire-bound.</p>
+<p>In this project, pipelining the Wallace reduction into three stages was not merely about increasing $F_{\max}$. It was about making the multiplier’s internal carry-save representation explicit and stageable, so that the rest of the system—lane replication, tree merging, accumulation—can be reasoned about with stable interfaces. The bigger win is architectural hygiene: once the multiplier is a well-behaved, latency-known component, the rest of the datapath can be tuned and scaled without repeatedly re-solving the same timing puzzle.</p>
+<p>If I extend this work, the most interesting direction is not to add more lanes blindly, but to treat physical locality as a design parameter: clustering lanes, shaping the adder tree to match placement, and possibly exploring alternative compressor schedules that map more naturally onto FPGA fast-carry resources. That is the point where “multiplier architecture” stops being an isolated block choice and starts being full-stack hardware design.</p>
+<h3 id="Code"><a href="#Code" class="headerlink" title="Code"></a>Code</h3><p>Source code available: <a target="_blank" rel="noopener" href="https://github.com/0xCapy/Vector-multiplier.git">https://github.com/0xCapy/Vector-multiplier.git</a> </p>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/FPGA/" rel="tag"># FPGA</a>
+              <a href="/tags/Verilog/" rel="tag"># Verilog</a>
+              <a href="/tags/RTL/" rel="tag"># RTL</a>
+              <a href="/tags/Architecture/" rel="tag"># Architecture</a>
+              <a href="/tags/Vivado/" rel="tag"># Vivado</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/11/05/UAV/" rel="prev" title="hybrid PI–Residual RL: A Small, Explainable Patch on Top of PI">
+                  <i class="fa fa-angle-left"></i> hybrid PI–Residual RL: A Small, Explainable Patch on Top of PI
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Hubo Zhu<br>朱沪博</span>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script src="/js/home-grid.js"></script>
+
+</body>
+</html>

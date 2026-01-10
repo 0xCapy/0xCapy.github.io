@@ -38,7 +38,7 @@
   <entry>
     <title>hybrid PI–Residual RL: A Small, Explainable Patch on Top of PI</title>
     <url>/2025/11/05/UAV/</url>
-    <content><![CDATA[<p>A RL mixed solution improving PI stability for UAV motors.<br><img src="/images/post2/flowchart.png" alt="Hybrid PI–RL structure"></p>
+    <content><![CDATA[<p><img src="/images/post2/flowchart.png" alt="Hybrid PI–RL structure"><br>A RL mixed solution improving PI stability for UAV motors.</p>
 <span id="more"></span>
 <p>This post is a project log of something I personally find more useful than “end-to-end RL replaces classical control”: I kept a conventional PI loop as the stable, interpretable baseline, and added a <strong>small, bounded residual correction</strong> on top of it. The goal was not to build a huge learning system, but to get a controller that behaves better under realistic nuisances—battery voltage sag, aerodynamic gust disturbances, and ESC-like actuation constraints—while still looking like something I would actually deploy.</p>
 <p>The intuition is simple. PI is already doing most of the job. What it often lacks is a lightweight, context-aware correction when the operating conditions shift. Instead of rewriting the controller, I tried to add the missing “last mile” with a residual term that is deliberately limited in magnitude and filtered for smoothness.</p>
@@ -74,6 +74,150 @@
       <tags>
         <tag>Control</tag>
         <tag>MachineLearning</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Pipelined INT8 Vector MAC on FPGA</title>
+    <url>/2026/01/10/mul/</url>
+    <content><![CDATA[<p style="text-align:center;">
+  <img src="/images/post3/wallace_cover.png" alt="Wallace tree reduction sketch" style="width:40%; height:70%;" />
+</p>
+Wallace Tree, Scaling, and the Real Cost of “Fast”
+
+<span id="more"></span>
+
+
+
+
+<p>At a glance, the Wallace tree looks like an elegant hack: take a tall matrix of partial products and squash it into two rows quickly, then finish with a normal carry-propagate adder. What becomes more interesting in practice is that Wallace is not simply “faster multiplication”. It is a statement about where you want complexity to live. Instead of letting carries ripple all the way across at every intermediate addition, you keep carries local by using carry-save compression (3:2 compressors, i.e., full adders) until the very end. In other words, Wallace postpones global carry resolution and spends area and routing to buy down logic depth. On an FPGA, that trade is never purely logical; it is also physical. The structure you choose shapes the placement and wiring, which can matter as much as the gate-level critical path.</p>
+<p style="text-align:center;">
+  <img src="/images/post3/str.png" alt="pipline stage" style="width:70%; height:auto;" />
+</p>
+
+<h3 id="Worst-case-sizing-as-a-first-class-constraint"><a href="#Worst-case-sizing-as-a-first-class-constraint" class="headerlink" title="Worst-case sizing as a first-class constraint"></a>Worst-case sizing as a first-class constraint</h3><p>Before discussing clocks and lanes, the arithmetic bound has to be explicit. With unsigned INT8 operands, the maximum product is</p>
+<p>$$<br>P_{\max} &#x3D; 255 \times 255 &#x3D; 65025 &#x3D; 2^{16} - 511.<br>$$</p>
+<p>This single number governs the widths of the multiplier output, the adder tree, and the accumulator. The objective here is not to minimise bitwidth at all costs; it is to choose widths that are safe, structurally consistent across $N$, and convenient for pipelining.</p>
+<div class="table-wrap">
+
+<table>
+<thead>
+<tr>
+<th>Block</th>
+<th>Operand range</th>
+<th align="right">Max. output</th>
+<th align="right">Chosen width</th>
+<th align="right">Latency</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>8×8 Wallace multiplier</td>
+<td>$(0 \ldots 255)$</td>
+<td align="right">$(255^2 &#x3D; 65025)$</td>
+<td align="right">17-bit</td>
+<td align="right">3 stages</td>
+</tr>
+<tr>
+<td>Adder tree $(N &#x3D; 1\text{–}16)$</td>
+<td>$(N)$ products</td>
+<td align="right">$(N \times 65025)$</td>
+<td align="right">20 bit (at $N&#x3D;16$)</td>
+<td align="right">$\max(2,\lceil \log_2 N \rceil)$</td>
+</tr>
+<tr>
+<td>Accumulator (up to 1000 beats)</td>
+<td>dot products</td>
+<td align="right">$(1000 \times 65025)$</td>
+<td align="right">32-bit</td>
+<td align="right">1 cycle</td>
+</tr>
+</tbody></table>
+</div>
+
+<p>There are three decisions embedded in Table I that are easy to miss if you only look at the final RTL. First, the multiplier output is carried on 17 bits. While $65025$ fits in 16 bits, the additional guard bit makes the reduction and final CPA less fragile, especially when the multiplier is deeply pipelined and internal carries are being staged. Second, the adder tree width is driven by the worst-case merge of $N$ products, with the upper bound</p>
+<p>$$<br>S_{\max}(N) &#x3D; N \cdot 65025,<br>$$</p>
+<p>and the tree depth is treated as a structural parameter rather than an afterthought,</p>
+<p>$$<br>L_{\text{tree}}(N) &#x3D; \max(2,\lceil \log_2 N \rceil).<br>$$</p>
+<p>Third, the accumulator is kept at 32 bits even though $1000 \times 65025 &#x3D; 65{,}025{,}000$ would fit in fewer bits. On FPGA, 32-bit arithmetic is a comfortable “native” size that simplifies integration, and it gives headroom for extending the design (wider operands, higher beat counts) without reopening every bound.</p>
+<h3 id="What-the-Wallace-tree-is-actually-buying"><a href="#What-the-Wallace-tree-is-actually-buying" class="headerlink" title="What the Wallace tree is actually buying"></a>What the Wallace tree is actually buying</h3><p>The Wallace tree is best described as a parallel reduction scheme for partial products. An $8\times 8$ multiplier generates eight shifted rows of partial products. If you add them naively, you either do it sequentially (shift-add over multiple cycles) or you build an array-like reduction where carries propagate repeatedly across the width. Wallace changes the game by using 3:2 compression to reduce the height of the matrix quickly without propagating carries globally at each step.</p>
+<p>The practical effect is that the “hard” part of the computation is reorganised into a sequence of local operations. Each compression layer shortens the vertical dimension of the bit matrix and only emits carries to the next higher-weight column. This is why Wallace trees pair naturally with pipelining: you can register between compression layers and keep the combinational depth under control. The final CPA is the only place where full carry propagation is allowed to happen.</p>
+<p>The less romantic part is that on FPGA, the “local” nature of compression is not guaranteed to be local in placement. A Wallace tree produces a dense pattern of adders with a wide fan-in&#x2F;fan-out across adjacent bit columns. With small widths like 8×8 this is manageable, but once you replicate lanes and add a pipelined adder tree on top, routing becomes a real cost centre. This is the main reason I did not treat “Wallace tree &#x3D; fastest” as a blanket truth; instead, I treated it as a design choice whose value must be validated post-implementation, not just post-synthesis.</p>
+<h3 id="Pipeline-structure-and-a-latency-model-that-stays-simple"><a href="#Pipeline-structure-and-a-latency-model-that-stays-simple" class="headerlink" title="Pipeline structure and a latency model that stays simple"></a>Pipeline structure and a latency model that stays simple</h3><p>The multiplier is implemented as a three-stage pipelined Wallace reduction, followed by a final carry-propagate addition. Lane merging is done with a registered binary adder tree whose depth scales with $\log_2 N$. The accumulator adds one more registered stage under beat control. With this structure, the total latency remains predictable and the initiation interval stays at one cycle once the pipeline is filled. A simple mental model for the end-to-end latency in cycles is</p>
+<p>$$<br>L_{\text{total}}(N) \approx 3 + \log_2(N) + 1,<br>$$</p>
+<p>where the first term is the multiplier pipeline depth, the second term is the merging tree depth, and the final term is the accumulator stage. This is not meant to be a formal proof; it is meant to keep the design composable. When $N$ changes, the story does not change, only the constants do.</p>
+<h3 id="Post-implementation-results-where-scaling-is-“worth-it”"><a href="#Post-implementation-results-where-scaling-is-“worth-it”" class="headerlink" title="Post-implementation results: where scaling is “worth it”"></a>Post-implementation results: where scaling is “worth it”</h3><p>After implementation, I compared configurations using an effective throughput definition</p>
+<p>$$<br>TP &#x3D; \text{Lanes} \times F_{\max},<br>$$</p>
+<p>and then normalised it both by area (CLBeq) and by power. The point here is to make scaling effects visible. If $N$ doubles but $F_{\max}$ collapses, the architectural decision is not actually buying throughput.</p>
+<div class="table-wrap">
+
+<table>
+<thead>
+<tr>
+<th>Config</th>
+<th align="right">Latency [ns]</th>
+<th align="right">CLBeq</th>
+<th align="right">$F_{\max}$ [MHz]</th>
+<th align="right">Power [W]</th>
+<th align="right">$TP$</th>
+<th align="right">$TP&#x2F;\text{CLB}$</th>
+<th align="right">$TP&#x2F;W$</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1×8×8</td>
+<td align="right">4.736</td>
+<td align="right">39.6</td>
+<td align="right">211</td>
+<td align="right">0.010</td>
+<td align="right">211</td>
+<td align="right">5.33</td>
+<td align="right">21.1</td>
+</tr>
+<tr>
+<td>4×8×8</td>
+<td align="right">4.603</td>
+<td align="right">133.85</td>
+<td align="right">217</td>
+<td align="right">0.023</td>
+<td align="right">868</td>
+<td align="right">6.49</td>
+<td align="right">37.7</td>
+</tr>
+<tr>
+<td>8×8×8</td>
+<td align="right">4.780</td>
+<td align="right">285.85</td>
+<td align="right">209</td>
+<td align="right">0.042</td>
+<td align="right">1672</td>
+<td align="right">6.23</td>
+<td align="right">39.8</td>
+</tr>
+</tbody></table>
+</div>
+
+<p>The most useful conclusion from Table III is that scaling is not monotonic in “goodness”. The 4-lane configuration delivers the best throughput per area, which is a strong indicator that it sits near the efficient knee of this design’s scaling curve. The 8-lane configuration leads throughput per watt, which is consistent with amortising shared overheads, but it gives up some area efficiency, and it is also the most exposed to routing pressure. That observation is aligned with the earlier Wallace-tree reflection: once the design becomes physically dense, timing and power are no longer driven only by logical depth. They are driven by how hard the placer&#x2F;router has to work to keep high-activity signals short and well-clustered.</p>
+<div style="display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap;">
+  <img src="/images/post3/eff.png" alt="Efficiency vs area (TP/CLB)" style="flex:1 1 360px; max-width:48%; height:auto;" />
+  <img src="/images/post3/pow.png" alt="Power vs area (TP/W)" style="flex:1 1 360px; max-width:48%; height:auto;" />
+</div>
+
+
+
+<h3 id="A-more-honest-takeaway-on-Wallace-trees"><a href="#A-more-honest-takeaway-on-Wallace-trees" class="headerlink" title="A more honest takeaway on Wallace trees"></a>A more honest takeaway on Wallace trees</h3><p>If I had to compress the Wallace-tree lesson into one sentence, it would be this: Wallace is a technique for trading carry propagation depth for compressor density, and on FPGA that trade is mediated by routing. In small multipliers, Wallace often “just works” and gives you a clean pipelinable core. In a scalable lane-based design, Wallace becomes one of several interacting structures that collectively decide whether the design is compute-bound or wire-bound.</p>
+<p>In this project, pipelining the Wallace reduction into three stages was not merely about increasing $F_{\max}$. It was about making the multiplier’s internal carry-save representation explicit and stageable, so that the rest of the system—lane replication, tree merging, accumulation—can be reasoned about with stable interfaces. The bigger win is architectural hygiene: once the multiplier is a well-behaved, latency-known component, the rest of the datapath can be tuned and scaled without repeatedly re-solving the same timing puzzle.</p>
+<p>If I extend this work, the most interesting direction is not to add more lanes blindly, but to treat physical locality as a design parameter: clustering lanes, shaping the adder tree to match placement, and possibly exploring alternative compressor schedules that map more naturally onto FPGA fast-carry resources. That is the point where “multiplier architecture” stops being an isolated block choice and starts being full-stack hardware design.</p>
+<h3 id="Code"><a href="#Code" class="headerlink" title="Code"></a>Code</h3><p>Source code available: <a href="https://github.com/0xCapy/Vector-multiplier.git">https://github.com/0xCapy/Vector-multiplier.git</a> </p>
+<hr>
+]]></content>
+      <categories>
+        <category>Projects</category>
+      </categories>
+      <tags>
+        <tag>FPGA</tag>
+        <tag>Verilog</tag>
+        <tag>RTL</tag>
+        <tag>Architecture</tag>
+        <tag>Vivado</tag>
       </tags>
   </entry>
   <entry>
