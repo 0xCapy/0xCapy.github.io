@@ -78,7 +78,7 @@
   </entry>
   <entry>
     <title>Pipelined INT8 Vector MAC on FPGA</title>
-    <url>/2026/01/10/mul/</url>
+    <url>/2025/05/20/mul/</url>
     <content><![CDATA[<p style="text-align:center;">
   <img src="/images/post3/wallace_cover.png" alt="Wallace tree reduction sketch" style="width:40%; height:70%;" />
 </p>
@@ -215,9 +215,6 @@ Wallace Tree, Scaling, and the Real Cost of “Fast”
       <tags>
         <tag>FPGA</tag>
         <tag>Verilog</tag>
-        <tag>RTL</tag>
-        <tag>Architecture</tag>
-        <tag>Vivado</tag>
       </tags>
   </entry>
   <entry>
