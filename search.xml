@@ -38,8 +38,10 @@
   <entry>
     <title>hybrid PI–Residual RL: A Small, Explainable Patch on Top of PI</title>
     <url>/2025/11/05/UAV/</url>
-    <content><![CDATA[<p><img src="/images/post2/flowchart.png" alt="Hybrid PI–RL structure"><br>A RL mixed solution improving PI stability for UAV motors.</p>
+    <content><![CDATA[<p><img src="/images/post2/flowchart.png" alt="Hybrid PI–RL structure"></p>
+<p>A RL mixed solution improving PI stability for UAV motors.</p>
 <span id="more"></span>
+
 <p>This post is a project log of something I personally find more useful than “end-to-end RL replaces classical control”: I kept a conventional PI loop as the stable, interpretable baseline, and added a <strong>small, bounded residual correction</strong> on top of it. The goal was not to build a huge learning system, but to get a controller that behaves better under realistic nuisances—battery voltage sag, aerodynamic gust disturbances, and ESC-like actuation constraints—while still looking like something I would actually deploy.</p>
 <p>The intuition is simple. PI is already doing most of the job. What it often lacks is a lightweight, context-aware correction when the operating conditions shift. Instead of rewriting the controller, I tried to add the missing “last mile” with a residual term that is deliberately limited in magnitude and filtered for smoothness.</p>
 <h2 id="Why-a-hybrid-controller-instead-of-pure-neural-RL"><a href="#Why-a-hybrid-controller-instead-of-pure-neural-RL" class="headerlink" title="Why a hybrid controller instead of pure neural RL"></a>Why a hybrid controller instead of pure neural RL</h2><p>I wanted a controller whose behavior I can reason about and whose failure modes are not mysterious. In UAV motor speed control, the plant is not only nonlinear, but also constrained by very practical effects: duty saturation, duty slew limits, command delay, supply-voltage variations, and short gust-like load disturbances. These are exactly the kinds of details that can make a purely data-driven, high-capacity policy feel overpowered and under-explainable for the problem.</p>
@@ -74,6 +76,15 @@
       <tags>
         <tag>Control</tag>
         <tag>MachineLearning</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Hello World</title>
+    <url>/2024/12/21/test/</url>
+    <content><![CDATA[<p>Here is nothing</p>
+<span id="more"></span>]]></content>
+      <tags>
+        <tag>Test</tag>
       </tags>
   </entry>
   <entry>
@@ -215,15 +226,6 @@ Wallace Tree, Scaling, and the Real Cost of “Fast”
       <tags>
         <tag>FPGA</tag>
         <tag>Verilog</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Hello World</title>
-    <url>/2024/12/21/test/</url>
-    <content><![CDATA[<p>Here is nothing</p>
-<span id="more"></span>]]></content>
-      <tags>
-        <tag>Test</tag>
       </tags>
   </entry>
 </search>
