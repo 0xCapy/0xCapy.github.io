@@ -36,10 +36,10 @@
       </tags>
   </entry>
   <entry>
-    <title>hybrid PI–Residual RL: A Small, Explainable Patch on Top of PI</title>
+    <title>hybrid PI–Residual RL for UAV Motors</title>
     <url>/2025/11/05/UAV/</url>
     <content><![CDATA[<p><img src="/images/post2/flowchart.png" alt="Hybrid PI–RL structure"></p>
-<p>A RL mixed solution improving PI stability for UAV motors.</p>
+<p>A Small, Explainable Patch on Top of PI to improve UAV’s stability and efficiency</p>
 <span id="more"></span>
 
 <p>This post is a project log of something I personally find more useful than “end-to-end RL replaces classical control”: I kept a conventional PI loop as the stable, interpretable baseline, and added a <strong>small, bounded residual correction</strong> on top of it. The goal was not to build a huge learning system, but to get a controller that behaves better under realistic nuisances—battery voltage sag, aerodynamic gust disturbances, and ESC-like actuation constraints—while still looking like something I would actually deploy.</p>
@@ -81,15 +81,9 @@
   <entry>
     <title>Pipelined INT8 Vector MAC on FPGA</title>
     <url>/2025/05/20/mul/</url>
-    <content><![CDATA[<p style="text-align:center;">
-  <img src="/images/post3/wallace_cover.png" alt="Wallace tree reduction sketch" style="width:40%; height:70%;" />
-</p>
-Wallace Tree, Scaling, and the Real Cost of “Fast”
-
+    <content><![CDATA[<p><img src="/images/post3/wallace_cover.png" alt="cover"></p>
+<p>Wallace Tree, Scaling, and the Real Cost of “Fast”</p>
 <span id="more"></span>
-
-
-
 
 <p>At a glance, the Wallace tree looks like an elegant hack: take a tall matrix of partial products and squash it into two rows quickly, then finish with a normal carry-propagate adder. What becomes more interesting in practice is that Wallace is not simply “faster multiplication”. It is a statement about where you want complexity to live. Instead of letting carries ripple all the way across at every intermediate addition, you keep carries local by using carry-save compression (3:2 compressors, i.e., full adders) until the very end. In other words, Wallace postpones global carry resolution and spends area and routing to buy down logic depth. On an FPGA, that trade is never purely logical; it is also physical. The structure you choose shapes the placement and wiring, which can matter as much as the gate-level critical path.</p>
 <p style="text-align:center;">

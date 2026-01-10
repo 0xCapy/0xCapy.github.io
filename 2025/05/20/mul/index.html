@@ -32,7 +32,7 @@
 <meta property="og:image" content="https://hubozhu.com/images/post3/eff.png">
 <meta property="og:image" content="https://hubozhu.com/images/post3/pow.png">
 <meta property="article:published_time" content="2025-05-19T23:00:00.000Z">
-<meta property="article:modified_time" content="2026-01-10T18:29:46.929Z">
+<meta property="article:modified_time" content="2026-01-10T18:48:43.754Z">
 <meta property="article:author" content="Hubo Zhu&lt;br&gt;朱沪博">
 <meta property="article:tag" content="FPGA">
 <meta property="article:tag" content="Verilog">
@@ -268,7 +268,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2026-01-10 18:29:46" itemprop="dateModified" datetime="2026-01-10T18:29:46Z">2026-01-10</time>
+      <time title="Modified: 2026-01-10 18:48:43" itemprop="dateModified" datetime="2026-01-10T18:48:43Z">2026-01-10</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -289,15 +289,9 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><p style="text-align:center;">
-  <img src="/images/post3/wallace_cover.png" alt="Wallace tree reduction sketch" style="width:40%; height:70%;" />
-</p>
-Wallace Tree, Scaling, and the Real Cost of “Fast”
-
+    <div class="post-body" itemprop="articleBody"><p><img src="/images/post3/wallace_cover.png" alt="cover"></p>
+<p>Wallace Tree, Scaling, and the Real Cost of “Fast”</p>
 <span id="more"></span>
-
-
-
 
 <p>At a glance, the Wallace tree looks like an elegant hack: take a tall matrix of partial products and squash it into two rows quickly, then finish with a normal carry-propagate adder. What becomes more interesting in practice is that Wallace is not simply “faster multiplication”. It is a statement about where you want complexity to live. Instead of letting carries ripple all the way across at every intermediate addition, you keep carries local by using carry-save compression (3:2 compressors, i.e., full adders) until the very end. In other words, Wallace postpones global carry resolution and spends area and routing to buy down logic depth. On an FPGA, that trade is never purely logical; it is also physical. The structure you choose shapes the placement and wiring, which can matter as much as the gate-level critical path.</p>
 <p style="text-align:center;">
@@ -440,8 +434,8 @@ Wallace Tree, Scaling, and the Real Cost of “Fast”
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2025/11/05/UAV/" rel="next" title="hybrid PI–Residual RL: A Small, Explainable Patch on Top of PI">
-                  hybrid PI–Residual RL: A Small, Explainable Patch on Top of PI <i class="fa fa-angle-right"></i>
+                <a href="/2025/11/05/UAV/" rel="next" title="hybrid PI–Residual RL for UAV Motors">
+                  hybrid PI–Residual RL for UAV Motors <i class="fa fa-angle-right"></i>
                 </a>
             </div>
           </div>

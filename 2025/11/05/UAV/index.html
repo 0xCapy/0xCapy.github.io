@@ -20,18 +20,18 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"hubozhu.com","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"style":"flat"},"fold":{"enable":true,"height":500},"language":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
 
-    <meta name="description" content="A RL mixed solution improving PI stability for UAV motors.">
+    <meta name="description" content="A Small, Explainable Patch on Top of PI to improve UAV’s stability and efficiency">
 <meta property="og:type" content="article">
-<meta property="og:title" content="hybrid PI–Residual RL: A Small, Explainable Patch on Top of PI">
+<meta property="og:title" content="hybrid PI–Residual RL for UAV Motors">
 <meta property="og:url" content="https://hubozhu.com/2025/11/05/UAV/index.html">
 <meta property="og:site_name" content="Hubo&#39;s Blog&lt;br&gt;沪博的小窝">
-<meta property="og:description" content="A RL mixed solution improving PI stability for UAV motors.">
+<meta property="og:description" content="A Small, Explainable Patch on Top of PI to improve UAV’s stability and efficiency">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://hubozhu.com/images/post2/flowchart.png">
 <meta property="og:image" content="https://hubozhu.com/images/post2/Compare.png">
 <meta property="og:image" content="https://hubozhu.com/images/post2/Pareto.png">
 <meta property="article:published_time" content="2025-11-05T00:00:00.000Z">
-<meta property="article:modified_time" content="2026-01-10T18:33:38.101Z">
+<meta property="article:modified_time" content="2026-01-10T18:50:06.010Z">
 <meta property="article:author" content="Hubo Zhu&lt;br&gt;朱沪博">
 <meta property="article:tag" content="Control">
 <meta property="article:tag" content="MachineLearning">
@@ -42,10 +42,10 @@
 <link rel="canonical" href="https://hubozhu.com/2025/11/05/UAV/">
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://hubozhu.com/2025/11/05/UAV/","path":"2025/11/05/UAV/","title":"hybrid PI–Residual RL: A Small, Explainable Patch on Top of PI"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://hubozhu.com/2025/11/05/UAV/","path":"2025/11/05/UAV/","title":"hybrid PI–Residual RL for UAV Motors"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>hybrid PI–Residual RL: A Small, Explainable Patch on Top of PI | Hubo's Blog<br>沪博的小窝</title>
+<title>hybrid PI–Residual RL for UAV Motors | Hubo's Blog<br>沪博的小窝</title>
   
 
 
@@ -244,12 +244,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="hybrid PI–Residual RL: A Small, Explainable Patch on Top of PI | Hubo's Blog<br>沪博的小窝">
+      <meta itemprop="name" content="hybrid PI–Residual RL for UAV Motors | Hubo's Blog<br>沪博的小窝">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          hybrid PI–Residual RL: A Small, Explainable Patch on Top of PI
+          hybrid PI–Residual RL for UAV Motors
         </h1>
 
         <div class="post-meta-container">
@@ -267,7 +267,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2026-01-10 18:33:38" itemprop="dateModified" datetime="2026-01-10T18:33:38Z">2026-01-10</time>
+      <time title="Modified: 2026-01-10 18:50:06" itemprop="dateModified" datetime="2026-01-10T18:50:06Z">2026-01-10</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -289,7 +289,7 @@
     
     
     <div class="post-body" itemprop="articleBody"><p><img src="/images/post2/flowchart.png" alt="Hybrid PI–RL structure"></p>
-<p>A RL mixed solution improving PI stability for UAV motors.</p>
+<p>A Small, Explainable Patch on Top of PI to improve UAV’s stability and efficiency</p>
 <span id="more"></span>
 
 <p>This post is a project log of something I personally find more useful than “end-to-end RL replaces classical control”: I kept a conventional PI loop as the stable, interpretable baseline, and added a <strong>small, bounded residual correction</strong> on top of it. The goal was not to build a huge learning system, but to get a controller that behaves better under realistic nuisances—battery voltage sag, aerodynamic gust disturbances, and ESC-like actuation constraints—while still looking like something I would actually deploy.</p>
