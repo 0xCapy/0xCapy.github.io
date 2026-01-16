@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Access Control on KL46Z</title>
+    <title>Access Control Design on KL46Z</title>
     <url>/2025/01/07/Doorcontrol/</url>
     <content><![CDATA[<p><img src="/images/post1/3d.png" alt="cover"></p>
 <p>A compact access-control unit based on KL46Z.</p>
@@ -36,7 +36,7 @@
       </tags>
   </entry>
   <entry>
-    <title>hybrid PI–Residual RL for UAV Motors</title>
+    <title>Hybrid PI–Residual RL for UAV Motors</title>
     <url>/2025/11/05/UAV/</url>
     <content><![CDATA[<p><img src="/images/post2/flowchart.png" alt="Hybrid PI–RL structure"></p>
 <p>A Small, Explainable Patch on Top of PI to improve UAV’s stability and efficiency</p>
@@ -76,6 +76,78 @@
       <tags>
         <tag>Control</tag>
         <tag>MachineLearning</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Terraswarm - Soil Aeration Robots</title>
+    <url>/2026/01/02/terrabot/</url>
+    <content><![CDATA[<p><img src="/images/post4/cover.png" alt="cover"></p>
+<p>Let a Swarm of Robots Do the Soil Aeration for farmers</p>
+<span id="more"></span>
+
+<p>After a few very wet years, soil has started behaving like a grumpy mattress: stepped on, rained on, compacted, and eventually flattened into something that <em>looks</em> fine until you try to grow anything serious in it. Compacted soil reduces aeration and infiltration, makes roots struggle, and generally turns “healthy ground” into “why is everything suffering?” terrain.</p>
+<p>And the usual manual aeration and breaking up compact soil is honest work… and also expensive, time-consuming, and brutally human. It eats labour. It eats budget. It eats your knees.</p>
+<p><img src="/images/post4/soil.png" alt="Soil aeration is real work"></p>
+<p>So in <strong>Terraswarm</strong>, we asked a simple question with an annoyingly non-simple answer:<br>Can we replace “one person doing hard repetitive aeration” with “many small robots doing it continuously, safely, and cheaply”?<br>Not because farmers need more gadgets, but because agriculture often isn’t limited by <em>whether</em> something can be done—it’s limited by whether it can be done <strong>at scale</strong>, <strong>reliably</strong>, and <strong>without turning costs into a horror story</strong>.</p>
+<h2 id="The-problem-soil-compaction-is-quietly-expensive"><a href="#The-problem-soil-compaction-is-quietly-expensive" class="headerlink" title="The problem: soil compaction is quietly expensive"></a>The problem: soil compaction is quietly expensive</h2><p>Soil compaction is one of those problems that rarely looks dramatic, yet constantly taxes productivity. When the structure collapses, the soil holds less air, water moves poorly, and roots become less effective. Aeration helps by restoring porosity and improving the conditions for growth.</p>
+<p>But aeration is also a recurring task. Repeating it manually is a “hidden bill” that keeps returning.During our field conversations, farmer <strong>Nick</strong> put it more clearly than any slide deck ever could:</p>
+<blockquote>
+<p>“Following these recent wet years, I can see a lot of potential for a robot with a light footprint … breaking up compact soil has lots of benefits not only for vegetable growers but farmers as well.” — Nick</p>
+</blockquote>
+<p><img src="/images/post4/nick.png" alt="Nick (field interview)"></p>
+<p>That phrase—<strong>“light footprint”</strong>—became a design principle for us. Heavy machinery is powerful, but weight can also contribute to compaction. So rather than building <em>one stronger machine</em>, we explored building <strong>many lighter ones</strong> that cooperate.</p>
+<h2 id="Our-approach-a-swarm-not-a-hero-robot"><a href="#Our-approach-a-swarm-not-a-hero-robot" class="headerlink" title="Our approach: a swarm, not a hero robot"></a>Our approach: a swarm, not a hero robot</h2><p>Terraswarm isn’t about one “super robot” doing everything. It’s about a system:</p>
+<ul>
+<li>many simple units,</li>
+<li>each with a small job,</li>
+<li>collaborating through local rules,</li>
+<li>producing a useful global result.</li>
+</ul>
+<p>This is the logic of <strong>swarm robotics</strong>: individual robots stay relatively simple, but the collective behaviour becomes robust, scalable, and adaptable.</p>
+<p>Here’s the physical design of our <strong>Terra Bot</strong>:</p>
+<img src="/images/post4/design.png" alt="Terra Bot physical structure" style="width:50%; height:auto; display:block; margin: 0 auto;">
+
+
+<p>We focused on three core aspects:</p>
+<ul>
+<li><strong>Mobility</strong> for real outdoor terrain (not just lab floors),</li>
+<li>An <strong>aerating mechanism</strong> to actually deliver value (not just “move around impressively”),</li>
+<li>Basic <strong>sensing&#x2F;communication</strong> to support distributed coordination.</li>
+</ul>
+<h2 id="Rule-1-of-swarms-don’t-crash-into-your-teammates"><a href="#Rule-1-of-swarms-don’t-crash-into-your-teammates" class="headerlink" title="Rule 1 of swarms: don’t crash into your teammates"></a>Rule 1 of swarms: don’t crash into your teammates</h2><p>If you deploy multiple robots, they need to avoid turning the farm into bumper cars.</p>
+<p>We implemented collision-safe behaviours so individual robots can maintain safe spacing, avoid local congestion, and adjust paths dynamically. In swarm terms: each unit has enough awareness to be polite, even when the group gets busy.</p>
+<p><img src="/images/post4/coli.png" alt="Collision safe"></p>
+<h2 id="Rule-2-of-swarms-don’t-all-do-the-same-thing"><a href="#Rule-2-of-swarms-don’t-all-do-the-same-thing" class="headerlink" title="Rule 2 of swarms: don’t all do the same thing"></a>Rule 2 of swarms: don’t all do the same thing</h2><p>The point of a swarm isn’t “many robots doing identical work in the same spot.” The point is <strong>distributed coverage</strong> and <strong>emergent coordination</strong>.</p>
+<p>We adopted a <strong>distributed</strong> mindset inspired by ant-style systems: simple local communication, lightweight coordination, and task allocation that scales with the number of units. Each robot doesn’t need a perfect global map; it needs enough shared information to avoid redundancy and improve coverage.</p>
+<p><img src="/images/post4/ant.png" alt="Distributed coordination (ant-inspired)"></p>
+<p>This was one of the most satisfying lessons of the project: when you stop demanding a central controller that knows everything, you can start building systems that are resilient by design.</p>
+<h2 id="What-I-learned-agriculture-deserves-systems-thinking"><a href="#What-I-learned-agriculture-deserves-systems-thinking" class="headerlink" title="What I learned: agriculture deserves systems thinking"></a>What I learned: agriculture deserves systems thinking</h2><p>The most interesting part of Terraswarm, for me, wasn’t “we built a robot.” It was how it reshaped my thinking about agricultural robotics.</p>
+<p>Agriculture isn’t a clean engineering environment. Soil is a living, evolving system: moisture, pore structure, roots, microorganisms—everything interacts. That means robotics here isn’t just about automation; it’s about <strong>working with complex ecology</strong> without breaking it.</p>
+<p>Swarm robotics feels especially well-aligned with agriculture because farm tasks are naturally distributed: inspection, monitoring, aeration, marking, sampling. A swarm isn’t just a product—it’s an <strong>organising principle</strong> for field work.</p>
+<p>Today it’s soil aeration. Tomorrow, the same swarm logic could support monitoring, targeted interventions, and scalable autonomy where humans stay in the loop without carrying the entire workload.</p>
+<h2 id="Results-from-idea-to-recognition"><a href="#Results-from-idea-to-recognition" class="headerlink" title="Results: from idea to recognition"></a>Results: from idea to recognition</h2><p>We’re proud to share that <strong>Terraswarm won 1st place</strong> out of <strong>200+ teams</strong> at the University of Sheffield, and advanced into the <strong>UK Top 10 national finals</strong>.</p>
+<p>It was a muddy, chaotic, highly educational experience—and exactly the kind of project that reminds you engineering can be both practical and imaginative.</p>
+<p><img src="/images/post4/group.png" alt="Group pic"><br>For the official news story, see:</p>
+<ul>
+<li><a href="https://esbf.org.uk/news/sheffield-students-aim-for-national-success/">https://esbf.org.uk/news/sheffield-students-aim-for-national-success/</a></li>
+</ul>
+<p>Robots don’t need to be elegant only on carpets. They can be useful in mud.<br>And agriculture isn’t “traditional”—it’s simply a complex system waiting for more engineers to take it seriously.</p>
+]]></content>
+      <categories>
+        <category>Projects</category>
+      </categories>
+      <tags>
+        <tag>Embeded</tag>
+        <tag>Robotics</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Hello World</title>
+    <url>/2024/12/21/test/</url>
+    <content><![CDATA[<p>Here is nothing</p>
+<span id="more"></span>]]></content>
+      <tags>
+        <tag>Test</tag>
       </tags>
   </entry>
   <entry>
@@ -211,15 +283,6 @@
       <tags>
         <tag>FPGA</tag>
         <tag>Verilog</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Hello World</title>
-    <url>/2024/12/21/test/</url>
-    <content><![CDATA[<p>Here is nothing</p>
-<span id="more"></span>]]></content>
-      <tags>
-        <tag>Test</tag>
       </tags>
   </entry>
 </search>

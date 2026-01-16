@@ -1441,7 +1441,7 @@ pre code {
     vertical-align: middle;
   }
   .links-of-author a::before {
-    background: #3745ff;
+    background: #39ff06;
     display: inline-block;
     margin-right: 3px;
     transform: translateY(-2px);
@@ -3151,4 +3151,20 @@ header.header {
     -webkit-line-clamp: 3;
     overflow: hidden;
   }
+}
+/* Fix over-wide spacing (titles + body) */
+.post-title,
+.post-title-link,
+.post-body,
+.post-body p,
+.post-body li {
+  letter-spacing: normal !important;
+  word-spacing: normal !important;
+}
+/* For English posts: avoid ugly stretched gaps from justify */
+.post-body {
+  text-align: left !important;
+  text-justify: auto;
+  hyphens: auto; /* optional but helpful for EN */
+  overflow-wrap: break-word;
 }
