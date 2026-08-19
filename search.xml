@@ -79,7 +79,7 @@
       </tags>
   </entry>
   <entry>
-    <title>Residual RL for Bittle: Stabilising a CPG Trot on Soft Ground</title>
+    <title>Quadraped robot: Stabilising a CPG Trot on Soft Ground</title>
     <url>/2026/08/19/bittle-cpg-rl/</url>
     <content><![CDATA[<p><img src="/images/post5/bittle.png" alt="Bittle in simulation"></p>
 <p>My undergraduate dissertation - Whether a residual PPO policy could improve the stability of a quadruped gait on soft ground</p>
