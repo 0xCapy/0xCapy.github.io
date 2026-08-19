@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hubozhu.com","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"style":"flat"},"fold":{"enable":true,"height":500},"language":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="My undergraduate dissertation - Whether a residual PPO policy could improve the stability of a quadruped gait on soft ground">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Residual RL for Bittle: Stabilising a CPG Trot on Soft Ground">
+<meta property="og:url" content="https://hubozhu.com/2026/08/19/bittle-cpg-rl/index.html">
+<meta property="og:site_name" content="Hubo&#39;s Blog&lt;br&gt;沪博的小窝">
+<meta property="og:description" content="My undergraduate dissertation - Whether a residual PPO policy could improve the stability of a quadruped gait on soft ground">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://hubozhu.com/images/post5/bittle.png">
+<meta property="og:image" content="https://hubozhu.com/images/post5/MotionStageScreenshot.png">
+<meta property="og:image" content="https://hubozhu.com/images/post5/Collider.png">
+<meta property="og:image" content="https://hubozhu.com/images/post5/Pipeline.png">
+<meta property="og:image" content="https://hubozhu.com/images/post5/WorkSpace.png">
+<meta property="og:image" content="https://hubozhu.com/images/post5/WorkspaceLimited.png">
+<meta property="og:image" content="https://hubozhu.com/images/post5/Convergence.png">
+<meta property="og:image" content="https://hubozhu.com/images/post5/JointTarget.png">
+<meta property="og:image" content="https://hubozhu.com/images/post5/ContactTimeline.png">
+<meta property="og:image" content="https://hubozhu.com/images/post5/Performance.png">
+<meta property="article:published_time" content="2026-08-18T23:00:00.000Z">
+<meta property="article:modified_time" content="2026-08-19T11:53:13.228Z">
+<meta property="article:author" content="Hubo Zhu&lt;br&gt;朱沪博">
+<meta property="article:tag" content="Control">
+<meta property="article:tag" content="MachineLearning">
+<meta property="article:tag" content="Robotics">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hubozhu.com/images/post5/bittle.png">
+
+
+<link rel="canonical" href="https://hubozhu.com/2026/08/19/bittle-cpg-rl/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://hubozhu.com/2026/08/19/bittle-cpg-rl/","path":"2026/08/19/bittle-cpg-rl/","title":"Residual RL for Bittle: Stabilising a CPG Trot on Soft Ground"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Residual RL for Bittle: Stabilising a CPG Trot on Soft Ground | Hubo's Blog<br>沪博的小窝</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hubo's Blog<br>沪博的小窝</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">To record something interesting (maybe)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#From-walking-to-stable-locomotion"><span class="nav-number">1.</span> <span class="nav-text">From walking to stable locomotion</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Why-I-started-from-a-CPG"><span class="nav-number">2.</span> <span class="nav-text">Why I started from a CPG</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Getting-the-simulation-trustworthy-enough-to-train"><span class="nav-number">3.</span> <span class="nav-text">Getting the simulation trustworthy enough to train</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#The-baseline-had-to-be-good-before-RL-was-allowed-to-help"><span class="nav-number">4.</span> <span class="nav-text">The baseline had to be good before RL was allowed to help</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Residual-reinforcement-learning"><span class="nav-number">5.</span> <span class="nav-text">Residual reinforcement learning</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Why-the-residual-is-deliberately-restricted"><span class="nav-number">6.</span> <span class="nav-text">Why the residual is deliberately restricted</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Simulation-and-training-setup"><span class="nav-number">7.</span> <span class="nav-text">Simulation and training setup</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Designing-the-reward-what-should-PPO-actually-care-about"><span class="nav-number">8.</span> <span class="nav-text">Designing the reward: what should PPO actually care about?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#What-does-convergence-mean-in-this-project"><span class="nav-number">9.</span> <span class="nav-text">What does convergence mean in this project?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Looking-at-the-learned-motion-instead-of-just-the-reward"><span class="nav-number">10.</span> <span class="nav-text">Looking at the learned motion instead of just the reward</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Contact-timing-told-a-similar-story"><span class="nav-number">11.</span> <span class="nav-text">Contact timing told a similar story</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Final-quantitative-comparison"><span class="nav-number">12.</span> <span class="nav-text">Final quantitative comparison</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#What-I-actually-learned-from-the-project"><span class="nav-number">13.</span> <span class="nav-text">What I actually learned from the project</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Limitations"><span class="nav-number">14.</span> <span class="nav-text">Limitations</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Hubo Zhu<br>朱沪博"
+      src="/images/avatar.JPG">
+  <p class="site-author-name" itemprop="name">Hubo Zhu<br>朱沪博</p>
+  <div class="site-description" itemprop="description">ECE Undergraduate in UK, interested in robotics, machine learning and embedded systems.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/0xCapy" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;0xCapy" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yourname@gmail.com" title="E-Mail → mailto:yourname@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://hubozhu.com/2026/08/19/bittle-cpg-rl/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.JPG">
+      <meta itemprop="name" content="Hubo Zhu<br>朱沪博">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hubo's Blog<br>沪博的小窝">
+      <meta itemprop="description" content="ECE Undergraduate in UK, interested in robotics, machine learning and embedded systems.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Residual RL for Bittle: Stabilising a CPG Trot on Soft Ground | Hubo's Blog<br>沪博的小窝">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Residual RL for Bittle: Stabilising a CPG Trot on Soft Ground
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2026-08-19 00:00:00 / Modified: 12:53:13" itemprop="dateCreated datePublished" datetime="2026-08-19T00:00:00+01:00">2026-08-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Projects/" itemprop="url" rel="index"><span itemprop="name">Projects</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p><img src="/images/post5/bittle.png" alt="Bittle in simulation"></p>
+<p>My undergraduate dissertation - Whether a residual PPO policy could improve the stability of a quadruped gait on soft ground</p>
+<span id="more"></span>
+
+<h2 id="From-walking-to-stable-locomotion"><a href="#From-walking-to-stable-locomotion" class="headerlink" title="From walking to stable locomotion"></a>From walking to stable locomotion</h2><p>At the beginning of the project, the problem appeared straightforward: construct a gait for Bittle, command a forward velocity, and evaluate whether the robot could walk successfully. But once I started examining the motion rather than just the displacement, I realised that “the robot moves forward” was not a particularly useful definition of successful locomotion. A controller can achieve reasonable forward velocity while the body gradually rotates away from its intended heading, roll and pitch oscillate between support transitions, touchdown introduces vertical bouncing, or a swing leg contacts the ground earlier than intended.</p>
+<p>These effects became more noticeable when I moved away from ideal rigid-ground contact. On compliant ground, the phase commanded by the gait generator and the actual mechanical support phase are not necessarily identical. A controller may mathematically consider a leg to have entered stance while, in the physics simulation, the foot is still settling into the surface and the corresponding support force is developing gradually. A small timing difference at one touchdown may initially appear insignificant, but if one diagonal pair repeatedly develops support differently from the other, the error can accumulate across gait cycles and appear as heading drift, increased yaw rate, body tilt or inconsistent vertical motion.</p>
+<p><strong>If the robot already has a reasonable walking controller, what exactly should reinforcement learning be responsible for?</strong></p>
+<p>One option would have been to remove the handcrafted controller entirely and train an end-to-end policy that maps observations directly to joint targets. I deliberately did not take that route. The coordination pattern of a diagonal trot is already something I can describe explicitly: I know which legs should move together, how the two diagonal pairs should be phase-shifted, and approximately how swing and stance should progress. Asking a neural policy to rediscover all of this would reduce interpretability without necessarily addressing the part of the problem that I actually found difficult.</p>
+<p>Instead, I treated the problem as a separation of responsibilities. The <strong>CPG</strong> defines the nominal gait structure, while the <strong>learned policy</strong> corrects deviations from that nominal behaviour. This also changed how I defined performance. Forward velocity remained important, but it was no longer sufficient on its own; I also cared about velocity-tracking error, heading drift, yaw motion, roll-pitch tilt, vertical bouncing and consistency of foot-ground interaction. Reward was useful during training, but I did not want the final argument for success to be simply that cumulative return increased. The controller needed to look physically better as well.</p>
+<p>That reasoning eventually led to the central design of the project: first construct a structured and interpretable CPG gait that can walk on its own, and then allow PPO to learn only a bounded residual correction on top of it.</p>
+<h2 id="Why-I-started-from-a-CPG"><a href="#Why-I-started-from-a-CPG" class="headerlink" title="Why I started from a CPG"></a>Why I started from a CPG</h2><p>A Central Pattern Generator provides a compact way of representing rhythmic locomotion. For Bittle, I used a diagonal trot in which the left-front and right-back legs form one pair, while the right-front and left-back legs form the other. The two diagonal pairs are separated by half of a gait cycle.</p>
+<p>For leg <em>i</em>, I represent its normalised phase conceptually as:</p>
+<div style="text-align:center; font-size:1.2em; margin:1.5em 0;">
+  <i>u</i><sub>i</sub>(t)
+  =
+  (φ<sub>i</sub> + <i>f</i>t) mod 1
+</div>
+
+<p>where <i>f</i> is the gait frequency and φ<sub>i</sub> determines the phase relationship between the legs.</p>
+<p>I chose a trot partly because the coordination is simple enough to reason about. For a project involving reinforcement learning, having a baseline that I could understand both visually and mathematically was important; I did not want the starting point to already be a black box. However, it became clear quite early that a simple sinusoidal CPG was not enough. Walking is periodic, but contact events are not merely smooth periodic curves: liftoff, forward swing, touchdown and loading all play different physical roles.</p>
+<p>I therefore divided each gait cycle into several physically meaningful stages.</p>
+<p><img src="/images/post5/MotionStageScreenshot.png" alt="CPG gait stages"></p>
+<p><strong>Swing Liftoff → Swing Transfer → Pre-Touchdown → Touchdown Buffer → Stance Sweep</strong></p>
+<p>The touchdown buffer was particularly important to me. Immediately switching from swing to full stance creates a fairly abrupt change in the role of the leg. On a purely mathematical gait this transition may appear harmless, but in simulation the resulting support dynamics can disturb the body. Rather than expecting PPO to repair an unnecessarily harsh baseline later, I preferred to make the nominal gait physically more reasonable first.</p>
+<p>This became a recurring principle throughout the project: <strong>RL should compensate for uncertainty, not for problems that I could remove from the baseline controller myself.</strong></p>
+<h2 id="Getting-the-simulation-trustworthy-enough-to-train"><a href="#Getting-the-simulation-trustworthy-enough-to-train" class="headerlink" title="Getting the simulation trustworthy enough to train"></a>Getting the simulation trustworthy enough to train</h2><p>Before doing any reinforcement learning, there was a less glamorous but essential problem: making sure the simulated robot itself behaved correctly. The Bittle model was imported into Isaac Sim from an existing URDF-based asset, but the collision geometry needed to be corrected and checked before I trusted any contact-based result.</p>
+<p><img src="/images/post5/Collider.png" alt="Corrected Bittle collider"></p>
+<p>This mattered more than I initially expected. If a collider is wrong, a foot may appear to touch the ground visually while the physics engine reports something different. That error then propagates through the entire pipeline: contact timing becomes unreliable, scuff detection becomes unreliable, reward terms become unreliable, and eventually the RL policy learns from information that does not represent the motion I think I am observing.</p>
+<p>It changed how I approached the project. It is easy to think of the RL algorithm as the difficult part, but in practice I found that getting the robot model, coordinate conventions, joint directions, contacts and logging correct was at least as important. A sophisticated optimiser cannot rescue a badly defined environment.</p>
+<h2 id="The-baseline-had-to-be-good-before-RL-was-allowed-to-help"><a href="#The-baseline-had-to-be-good-before-RL-was-allowed-to-help" class="headerlink" title="The baseline had to be good before RL was allowed to help"></a>The baseline had to be good before RL was allowed to help</h2><p>I spent a significant part of the project examining the CPG with the residual policy completely disabled. If the baseline already contained severe asymmetry, large heading drift or unrealistic joint trajectories, allowing PPO to correct everything would make the final controller much harder to interpret. I therefore wanted the zero-residual controller to produce a recognisable diagonal trot on its own.</p>
+<p>This meant checking shoulder and knee trajectories, mirrored joint signs, stance progression and touchdown behaviour before training. The important question was not whether the baseline was perfect, but whether its remaining errors were genuinely the type of errors that justified feedback adaptation.</p>
+<p>This gave me a clearer boundary between the two parts of the controller:</p>
+<ul>
+<li><strong>CPG:</strong> gait structure and nominal motion.</li>
+<li><strong>PPO:</strong> state-dependent correction when the physical motion departs from that nominal assumption.</li>
+</ul>
+<h2 id="Residual-reinforcement-learning"><a href="#Residual-reinforcement-learning" class="headerlink" title="Residual reinforcement learning"></a>Residual reinforcement learning</h2><p>The central control structure can be written as:</p>
+<div style="text-align:center; font-size:1.28em; margin:1.5em 0;">
+  <i>q</i><sub>final</sub>
+  =
+  <i>q</i><sub>CPG</sub>
+  +
+  Δ<i>q</i><sub>PPO</sub>
+</div>
+
+<p>Here, <i>q</i><sub>CPG</sub> is the nominal joint target generated by the structured gait, Δ<i>q</i><sub>PPO</sub> is the learned residual correction, and <i>q</i><sub>final</sub> is the target ultimately passed to the robot after the relevant limits are applied.</p>
+<p><img src="/images/post5/Pipeline.png" alt="Residual CPG-PPO pipeline"></p>
+<p>I preferred this structure to an end-to-end locomotion policy mainly because of interpretability and control authority. If a final shoulder target changes, I can separately inspect the original CPG target and the PPO residual, which tells me what the robot would have done without learning and what the learned policy decided to modify.</p>
+<p>At the same time, I did not want the policy to have unrestricted authority over complete joint trajectories and then rely purely on reward shaping to discourage undesirable behaviour. Instead, I deliberately reduced the learning problem. The policy receives body state, joint state, gait phase, contact information, velocity command and previous-action information. Its action consists of eight joint residuals together with three gait-level residuals: touchdown-buffer ratio, shoulder amplitude and knee-lift amplitude.</p>
+<p>I liked this action structure because it allows two levels of adaptation. PPO can make a local correction to an individual joint, but it can also slightly reshape a physically meaningful component of the underlying gait. In other words, the policy can respond both to instantaneous state errors and to aspects of the nominal gait that may need to become slightly more or less aggressive.</p>
+<h2 id="Why-the-residual-is-deliberately-restricted"><a href="#Why-the-residual-is-deliberately-restricted" class="headerlink" title="Why the residual is deliberately restricted"></a>Why the residual is deliberately restricted</h2><p>Simply maximising reward is not enough. If PPO discovered that a violent shoulder correction improved velocity tracking for several steps, that behaviour might be numerically useful while being completely unsuitable for the physical robot. I therefore treated action limits as part of the controller design rather than an afterthought.</p>
+<p>The raw PPO actions are scaled, clipped and rate-limited before reaching the robot. Final joint targets are also constrained by joint limits and a conservative workspace.</p>
+<p><img src="/images/post5/WorkSpace.png" alt="Workspace constraint"></p>
+<p>I thought about this as two different workspaces. One is the set of configurations that are geometrically possible, while the other is the smaller set of configurations that I would actually be comfortable asking the controller to use repeatedly.</p>
+<p><img src="/images/post5/WorkspaceLimited.png" alt="Constrained workspace"></p>
+<p>Residual learning should operate inside the second one. These constraints are not a formal safety proof, but they prevent the policy from exploiting some of the most obvious unrealistic solutions and, more importantly, preserve the intended hierarchy of the controller: PPO remains a correction layer rather than becoming a second gait generator competing with the CPG.</p>
+<h2 id="Simulation-and-training-setup"><a href="#Simulation-and-training-setup" class="headerlink" title="Simulation and training setup"></a>Simulation and training setup</h2><p>The full environment was implemented using NVIDIA Isaac Sim and Isaac Lab, with RSL-RL used for PPO training. The main experimental settings are summarised below.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Setting</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Simulation platform</td>
+<td>NVIDIA Isaac Sim + Isaac Lab</td>
+</tr>
+<tr>
+<td>Robot</td>
+<td>Corrected Petoi Bittle articulated model</td>
+</tr>
+<tr>
+<td>Controller</td>
+<td>CPG baseline + residual PPO</td>
+</tr>
+<tr>
+<td>Task</td>
+<td>Straight-line body-frame velocity tracking</td>
+</tr>
+<tr>
+<td>Forward command</td>
+<td>0.05–0.30 m&#x2F;s</td>
+</tr>
+<tr>
+<td>Yaw command</td>
+<td>0 rad&#x2F;s</td>
+</tr>
+<tr>
+<td>Policy action</td>
+<td>8 joint residuals + 3 gait-parameter residuals</td>
+</tr>
+<tr>
+<td>Training terrain</td>
+<td>Compliant-contact ground</td>
+</tr>
+<tr>
+<td>Ground stiffness</td>
+<td>3500</td>
+</tr>
+<tr>
+<td>Ground damping</td>
+<td>180</td>
+</tr>
+<tr>
+<td>Static &#x2F; dynamic friction</td>
+<td>1.15 &#x2F; 1.05</td>
+</tr>
+<tr>
+<td>Parallel environments</td>
+<td>512</td>
+</tr>
+<tr>
+<td>Physics timestep</td>
+<td>1&#x2F;120 s</td>
+</tr>
+<tr>
+<td>Control timestep</td>
+<td>1&#x2F;30 s</td>
+</tr>
+<tr>
+<td>Control decimation</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Episode duration</td>
+<td>15 s</td>
+</tr>
+<tr>
+<td>PPO iterations</td>
+<td>1500</td>
+</tr>
+<tr>
+<td>Actor &#x2F; critic</td>
+<td>MLP 256–256–128</td>
+</tr>
+<tr>
+<td>Activation</td>
+<td>ELU</td>
+</tr>
+<tr>
+<td>Learning rate</td>
+<td>1 × 10⁻³</td>
+</tr>
+<tr>
+<td>Discount factor γ</td>
+<td>0.99</td>
+</tr>
+<tr>
+<td>GAE λ</td>
+<td>0.95</td>
+</tr>
+<tr>
+<td>PPO clip parameter</td>
+<td>0.2</td>
+</tr>
+<tr>
+<td>Final evaluation</td>
+<td>16 environments, 32 episodes, 360 steps per episode</td>
+</tr>
+</tbody></table>
+<p>One distinction here is important: I call the terrain <strong>compliant ground</strong>, not a true simulation of mud, sand or soil. Adjusting stiffness, damping and friction changes how support develops during contact and creates a less ideal interaction than rigid flat ground, but it does not model granular flow, permanent deformation, local compaction or realistic sinkage.</p>
+<p>I deliberately kept this distinction because it would otherwise be easy to overstate the result. My goal at this stage was not to claim that I had solved locomotion on mud, but to create a controlled environment in which the nominal gait experiences contact uncertainty and then examine whether feedback-based residual correction improves the resulting locomotion.</p>
+<h2 id="Designing-the-reward-what-should-PPO-actually-care-about"><a href="#Designing-the-reward-what-should-PPO-actually-care-about" class="headerlink" title="Designing the reward: what should PPO actually care about?"></a>Designing the reward: what should PPO actually care about?</h2><p>Reward design required more thought than I initially expected. A naive locomotion objective could make forward velocity dominant, but that was not necessarily what I wanted. If the robot reaches the requested speed while continuously drifting in yaw or bouncing heavily at touchdown, I would not describe the controller as successful.</p>
+<p>The reward therefore combines positive terms for forward tracking, survival and support continuity with penalties related to heading error, yaw rate, roll-pitch tilt, vertical bouncing, action magnitude, action rate, swing scuffing and diagonal-support imbalance. The exact weights are implementation details, but the conceptual choice was more important: I wanted the optimisation target to correspond reasonably well to what I would visually describe as a better gait.</p>
+<p>That sounds obvious, but reward design and human judgement can diverge surprisingly easily. This is also why I later evaluated the trained policy using individual physical metrics instead of relying on cumulative return as the final evidence.</p>
+<h2 id="What-does-convergence-mean-in-this-project"><a href="#What-does-convergence-mean-in-this-project" class="headerlink" title="What does convergence mean in this project?"></a>What does convergence mean in this project?</h2><p>The word <em>convergence</em> needs some care in reinforcement learning. I cannot claim that PPO converged to a mathematically optimal locomotion policy. What I can observe is <strong>empirical convergence during training</strong>.</p>
+<p><img src="/images/post5/Convergence.png" alt="Training convergence"></p>
+<p>The return improves rapidly during the early stage of training and later becomes substantially flatter. However, I did not want to infer convergence from reward alone. Several physical quantities evolved in the same direction: yaw drift decreased, tilt RMS fell, vertical-bounce RMS was reduced, and swing scuffing became less frequent. Eventually these quantities entered comparatively stable regions rather than continuing to change dramatically between checkpoints.</p>
+<p>That is what I mean here when I say that training converged: not convergence to a proven global optimum, but a stage in which continued PPO updates produced relatively small changes and the principal stability metrics had settled substantially below their initial values. There was still variation between later checkpoints, particularly in heading-related quantities, so I think of the end of training as a <strong>stable policy region</strong> rather than a single uniquely optimal iteration.</p>
+<p>This also affected policy selection. I was more interested in a checkpoint whose behaviour was consistently reasonable across multiple physical metrics than in blindly choosing whichever checkpoint happened to have the largest scalar return.</p>
+<h2 id="Looking-at-the-learned-motion-instead-of-just-the-reward"><a href="#Looking-at-the-learned-motion-instead-of-just-the-reward" class="headerlink" title="Looking at the learned motion instead of just the reward"></a>Looking at the learned motion instead of just the reward</h2><p>One of the questions I cared about most after training was: <strong>did PPO actually stabilise the existing gait, or did it quietly invent a different one?</strong></p>
+<p>A scalar reward cannot answer that, so I compared the baseline CPG targets with the final targets after PPO correction.</p>
+<p><img src="/images/post5/JointTarget.png" alt="Joint target comparison"></p>
+<p>This was probably the result that made the residual formulation most convincing to me. The trained targets still follow the overall phase structure of the CPG and remain smooth and recognisably periodic rather than becoming high-frequency neural control signals. The largest corrections appear around swing, touchdown and stance transitions, which is physically reasonable because these are exactly the parts of the gait where small differences in contact timing or support development matter most.</p>
+<p>PPO did not need to discover a new locomotion cycle. It mainly changed how the existing cycle behaved near the regions where the nominal assumptions were weakest, which I found much more interesting than simply observing a higher reward.</p>
+<h2 id="Contact-timing-told-a-similar-story"><a href="#Contact-timing-told-a-similar-story" class="headerlink" title="Contact timing told a similar story"></a>Contact timing told a similar story</h2><p>I also compared representative contact timelines.</p>
+<p><img src="/images/post5/ContactTimeline.png" alt="Contact timeline"></p>
+<p>The alternating diagonal structure remains visible after training, meaning the learned policy does not fundamentally change which legs support the robot together. Instead, the differences appear mainly around contact transitions and overlap.</p>
+<p>I am cautious about interpreting this too strongly because the contact signal comes from simulation and includes proxy assumptions. Nevertheless, together with the joint-target plots, it supports the interpretation that the residual policy modifies support-transition behaviour while preserving the underlying diagonal trot.</p>
+<h2 id="Final-quantitative-comparison"><a href="#Final-quantitative-comparison" class="headerlink" title="Final quantitative comparison"></a>Final quantitative comparison</h2><p>The final experiment compares the original CPG with zero residual against the selected trained checkpoint under the same compliant-ground setup.</p>
+<p><img src="/images/post5/Performance.png" alt="Baseline vs trained performance"></p>
+<p>The cumulative return increases from <strong>240.6 to 390.8</strong>, corresponding to an improvement of approximately <strong>62.4%</strong>. More importantly, the physical locomotion metrics improve at the same time. Velocity RMSE decreases from <strong>0.1376 to 0.0506</strong>, a reduction of approximately <strong>63.2%</strong>, while heading drift falls from <strong>0.0244 to 0.0104</strong>, approximately <strong>57.4% lower</strong>.</p>
+<p>Yaw-rate magnitude decreases from <strong>0.0199 to 0.0060</strong>, a reduction of approximately <strong>69.8%</strong>, and tilt RMS decreases from <strong>0.0162 to 0.0049</strong>, also approximately <strong>69.8% lower</strong>. Vertical-bounce RMS improves more modestly, from <strong>0.1198 to 0.1026</strong>, corresponding to approximately <strong>14.4%</strong>.</p>
+<p>I think the differences between these improvements are themselves informative. The controller did not improve every aspect of locomotion by the same amount: heading and attitude stability improved substantially, while vertical bouncing proved harder to eliminate. That is more believable than a result in which every metric improves uniformly, and it also suggests where the present control formulation still has room to improve.</p>
+<h2 id="What-I-actually-learned-from-the-project"><a href="#What-I-actually-learned-from-the-project" class="headerlink" title="What I actually learned from the project"></a>What I actually learned from the project</h2><p>Before doing this project, I tended to think about reinforcement-learning controllers and classical controllers as two competing approaches: either I design the controller, or the policy learns it. I no longer think that distinction is particularly useful. A more useful question is: <strong>which part of the control problem is already understood well enough that I should not ask a neural policy to relearn it?</strong></p>
+<p>For Bittle, diagonal gait coordination is not mysterious. I know which legs should move together, approximately how swing and stance should progress, and how to encode those relationships directly in a controller that I can inspect. What is harder to specify manually is the exact correction required when touchdown happens differently from expected, when the body begins to yaw, or when support develops asymmetrically. That is where learning becomes useful.</p>
+<p>Residual RL therefore became less of a compromise between “traditional control” and “AI” and more of a decomposition of the problem: <strong>encode what I understand; learn what I do not model well.</strong></p>
+<p>The project also made me more cautious about evaluating RL systems. Watching a reward curve rise is satisfying, but it is not enough. I found joint trajectories, contact timelines, yaw behaviour and body motion much more informative because they forced me to ask what the policy was physically doing. Similarly, fixing colliders and checking contact semantics initially felt separate from the interesting control problem, but in reality they determine what the policy observes and what the reward means. The RL algorithm only optimises the world I give it; if that world is wrong, optimisation can be perfectly successful for the wrong problem.</p>
+<h2 id="Limitations"><a href="#Limitations" class="headerlink" title="Limitations"></a>Limitations</h2><p>The most important limitation is that all of these results remain simulation-based. The compliant-contact environment provides a useful controlled disturbance to the nominal gait, but it should not be confused with realistic deformable-terrain mechanics. A real Bittle introduces additional uncertainties including servo backlash, actuator delay, limited torque, battery-voltage variation, structural compliance, sensing uncertainty and real impact dynamics.</p>
+<p>Another limitation is the lack of a full ablation study. The complete policy can modify both individual joint targets and several gait parameters, and the final results show that this combined controller improves on the baseline. However, they do not establish how much of that improvement comes from each part. A useful future experiment would therefore compare CPG only, CPG with joint residuals, CPG with gait-parameter residuals, and the complete residual controller.</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Control/" rel="tag"># Control</a>
+              <a href="/tags/MachineLearning/" rel="tag"># MachineLearning</a>
+              <a href="/tags/Robotics/" rel="tag"># Robotics</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/01/02/terrabot/" rel="prev" title="Terraswarm - Soil Aeration Robots">
+                  <i class="fa fa-angle-left"></i> Terraswarm - Soil Aeration Robots
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Hubo Zhu<br>朱沪博</span>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script src="/js/home-grid.js"></script>
+
+</body>
+</html>

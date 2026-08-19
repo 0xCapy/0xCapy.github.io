@@ -1441,7 +1441,7 @@ pre code {
     vertical-align: middle;
   }
   .links-of-author a::before {
-    background: #39ff06;
+    background: #ac8e90;
     display: inline-block;
     margin-right: 3px;
     transform: translateY(-2px);
@@ -3083,48 +3083,28 @@ header.header {
     padding: 10px 12px;
   }
 }
-/* Home-only grid: enabled by JS adding .home-grid on the list container */
+/* ================================
+   Home page: single-column layout
+   ================================ */
 @media (min-width: 900px) {
   .home-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 22px;
-    align-items: start;
-  }
-  .home-grid .post-block {
-    margin: 0;
-    padding: 16px 16px 12px;
-    border-radius: 14px;
-    overflow: hidden;
-  }
-  .home-grid .post-title {
-    margin-bottom: 8px;
-  }
-  .home-grid .post-body img {
-    width: 100%;
-    height: 160px;
-    object-fit: cover;
-    display: block;
-    border-radius: 12px;
-  }
-}
-/* Home cards: force consistent card style + align footer */
-@media (min-width: 900px) {
-  .home-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 22px;
+    grid-template-columns: 1fr;
+    gap: 28px;
     align-items: stretch;
   }
   .home-grid .post-block {
     box-sizing: border-box;
+    width: 100%;
     margin: 0 !important;
-    padding: 16px 16px 12px;
+    padding: 22px 24px 18px;
     border-radius: 14px !important;
     overflow: hidden !important;
     display: flex;
     flex-direction: column;
-    height: 100%;
+  }
+  .home-grid .post-title {
+    margin-bottom: 8px;
   }
   .home-grid .post-body {
     flex: 1 1 auto;
@@ -3138,21 +3118,34 @@ header.header {
   }
   .home-grid .post-body img {
     width: 100%;
-    height: 160px;
+    height: 320px;
     object-fit: cover;
+    object-position: center;
     display: block;
     border-radius: 12px;
   }
 }
-@media (min-width: 900px) {
-  .home-grid .post-body {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
-    overflow: hidden;
+/* ================================
+   Mobile / tablet
+   ================================ */
+@media (max-width: 899px) {
+  .home-grid {
+    display: block;
+  }
+  .home-grid .post-block {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .home-grid .post-body img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 10px;
   }
 }
-/* Fix over-wide spacing (titles + body) */
+/* ================================
+   Typography fixes
+   ================================ */
 .post-title,
 .post-title-link,
 .post-body,
@@ -3161,10 +3154,9 @@ header.header {
   letter-spacing: normal !important;
   word-spacing: normal !important;
 }
-/* For English posts: avoid ugly stretched gaps from justify */
 .post-body {
   text-align: left !important;
   text-justify: auto;
-  hyphens: auto; /* optional but helpful for EN */
+  hyphens: auto;
   overflow-wrap: break-word;
 }
