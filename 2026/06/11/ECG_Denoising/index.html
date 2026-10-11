@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hubozhu.com","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"style":"flat"},"fold":{"enable":true,"height":500},"language":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="Digital Filters designed for ECG Denoising">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ECG Denoising with Digital Filters">
+<meta property="og:url" content="https://hubozhu.com/2026/06/11/ECG_Denoising/index.html">
+<meta property="og:site_name" content="Hubo&#39;s Blog&lt;br&gt;沪博的小窝">
+<meta property="og:description" content="Digital Filters designed for ECG Denoising">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://hubozhu.com/images/post6/Fig01_Initial_Time_Domain_Comparison.png">
+<meta property="og:image" content="https://hubozhu.com/images/post6/Fig03_R_Peak_Heart_Rate.png">
+<meta property="og:image" content="https://hubozhu.com/images/post6/Fig04_DFT_Annotated_Cutoff.png">
+<meta property="og:image" content="https://hubozhu.com/images/post6/Fig05_Filter_Magnitude_Responses.png">
+<meta property="og:image" content="https://hubozhu.com/images/post6/Fig06_Filtered_ECG_Comparison.png">
+<meta property="og:image" content="https://hubozhu.com/images/post6/Fig08_Filtered_Frequency_Domain_Comparison.png">
+<meta property="og:image" content="https://hubozhu.com/images/post6/Fig09_Improved_Filter_Comparison.png">
+<meta property="og:image" content="https://hubozhu.com/images/post6/fig10.png">
+<meta property="article:published_time" content="2026-06-10T22:00:00.000Z">
+<meta property="article:modified_time" content="2026-10-11T18:34:37.335Z">
+<meta property="article:author" content="Hubo Zhu&lt;br&gt;朱沪博">
+<meta property="article:tag" content="DSP">
+<meta property="article:tag" content="MATLAB">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hubozhu.com/images/post6/Fig01_Initial_Time_Domain_Comparison.png">
+
+
+<link rel="canonical" href="https://hubozhu.com/2026/06/11/ECG_Denoising/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://hubozhu.com/2026/06/11/ECG_Denoising/","path":"2026/06/11/ECG_Denoising/","title":"ECG Denoising with Digital Filters"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>ECG Denoising with Digital Filters | Hubo's Blog<br>沪博的小窝</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hubo's Blog<br>沪博的小窝</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">To record something interesting</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-Start-with-the-signal"><span class="nav-number">1.</span> <span class="nav-text">1. Start with the signal</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-Identify-the-interference-in-the-frequency-domain"><span class="nav-number">2.</span> <span class="nav-text">2. Identify the interference in the frequency domain</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-Two-fifth-order-filters-two-different-compromises"><span class="nav-number">3.</span> <span class="nav-text">3. Two fifth-order filters, two different compromises</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-Cleaner-in-frequency-less-faithful-in-time"><span class="nav-number">4.</span> <span class="nav-text">4. Cleaner in frequency, less faithful in time</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-A-more-selective-offline-filtering-strategy"><span class="nav-number">5.</span> <span class="nav-text">5. A more selective offline filtering strategy</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-Results-evaluate-reconstruction-not-appearance"><span class="nav-number">6.</span> <span class="nav-text">6. Results: evaluate reconstruction, not appearance</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-What%E2%80%99s-more"><span class="nav-number">7.</span> <span class="nav-text">7. What’s more?</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Hubo Zhu<br>朱沪博"
+      src="/images/avatar.JPG">
+  <p class="site-author-name" itemprop="name">Hubo Zhu<br>朱沪博</p>
+  <div class="site-description" itemprop="description">MSc. Communication and Electronics @ TUM. interested in Digital Design, Hardware acceleration and Robotics.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/0xCapy" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;0xCapy" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hubo_z@outlook.com" title="E-Mail → mailto:hubo_z@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://hubozhu.com/2026/06/11/ECG_Denoising/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.JPG">
+      <meta itemprop="name" content="Hubo Zhu<br>朱沪博">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hubo's Blog<br>沪博的小窝">
+      <meta itemprop="description" content="MSc. Communication and Electronics @ TUM. interested in Digital Design, Hardware acceleration and Robotics.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="ECG Denoising with Digital Filters | Hubo's Blog<br>沪博的小窝">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ECG Denoising with Digital Filters
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2026-06-11 00:00:00" itemprop="dateCreated datePublished" datetime="2026-06-11T00:00:00+02:00">2026-06-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-10-11 20:34:37" itemprop="dateModified" datetime="2026-10-11T20:34:37+02:00">2026-10-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Projects/" itemprop="url" rel="index"><span itemprop="name">Projects</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p><img src="/images/post6/Fig01_Initial_Time_Domain_Comparison.png" alt="Original and noisy ECG recordings"></p>
+<p>Digital Filters designed for ECG Denoising</p>
+<span id="more"></span>
+
+<h2 id="1-Start-with-the-signal"><a href="#1-Start-with-the-signal" class="headerlink" title="1. Start with the signal"></a>1. Start with the signal</h2><p>Dataset used in this project is taken from the ECG database at: <a target="_blank" rel="noopener" href="https://physionet.org/">https://physionet.org/</a><br>It contains a 10 second ECG recording sampled at 360 Hz, giving 3,600 samples, and includes a clean reference and a corrupted version used for filter evaluation. The record also contains an unusual ventricular waveform around 6 seconds, so simply smoothing the most prominent features would be a poor objective.</p>
+<p>The first figure shows how noise thickens the trace, particularly in lower-amplitude regions. The larger QRS deflections remain visible, but visibility alone says little about whether their timing and shape have survived filtering.</p>
+<p>I also used a basic peak-detection pass to estimate a nominal heart rate of <strong>72 bpm</strong> from 12 detected positive peaks over 10 seconds.</p>
+<p style="text-align:center;">
+  <img src="/images/post6/Fig03_R_Peak_Heart_Rate.png" alt="Detected positive ECG peaks and a nominal heart-rate estimate" style="width:94%;max-width:860px;height:auto;" />
+</p>
+
+<p><em>Initial positive-peak detection on the clean reference. The atypical ventricular event illustrates why a simple peak count is not a validated QRS detector or clinical heart-rate assessment.</em></p>
+<p>The peak locations also provided a way to inspect timing changes after filtering. That check is particularly useful when comparing filters with different phase responses.</p>
+<h2 id="2-Identify-the-interference-in-the-frequency-domain"><a href="#2-Identify-the-interference-in-the-frequency-domain" class="headerlink" title="2. Identify the interference in the frequency domain"></a>2. Identify the interference in the frequency domain</h2><p>Rather than choosing a cutoff from the time-domain trace alone, I inspected the one-sided discrete Fourier transform (DFT) of the noisy recording.</p>
+<p style="text-align:center;">
+  <img src="/images/post6/Fig04_DFT_Annotated_Cutoff.png" alt="DFT of the noisy ECG with the 60 Hz interference, high-frequency band, and 45 Hz cutoff marked" style="width:94%;max-width:860px;height:auto;" />
+</p>
+
+<p><em>The noisy spectrum contains a narrow component at 60 Hz and a broad elevated band at approximately 117–142 Hz.</em></p>
+<p>These are different interference problems. A narrow spectral component suggests a targeted notch; a broad high-frequency band suggests low-pass attenuation. For the initial comparison, I selected a <strong>45 Hz low-pass cutoff</strong> to suppress both components with a single filter.</p>
+<p>With a sampling frequency of $f_s&#x3D;360,\mathrm{Hz}$, the cutoff normalised to the Nyquist frequency is</p>
+<p>$$<br>W_n&#x3D;\frac{f_c}{f_s&#x2F;2}&#x3D;\frac{45}{180}&#x3D;0.25.<br>$$</p>
+<p>This is a practical first choice rather than a guarantee of optimal waveform preservation. A low-pass filter removes spectral energy according to frequency, not according to whether that energy belongs to interference or to a sharp ECG feature.</p>
+<h2 id="3-Two-fifth-order-filters-two-different-compromises"><a href="#3-Two-fifth-order-filters-two-different-compromises" class="headerlink" title="3. Two fifth-order filters, two different compromises"></a>3. Two fifth-order filters, two different compromises</h2><p>The baseline designs used the same nominal order and cutoff:</p>
+<ul>
+<li><strong>FIR:</strong> fifth-order low-pass filter designed with a Hamming window.</li>
+<li><strong>IIR:</strong> fifth-order Butterworth low-pass filter.</li>
+<li><strong>Common settings:</strong> $f_s&#x3D;360,\mathrm{Hz}$, $f_c&#x3D;45,\mathrm{Hz}$, applied causally.</li>
+</ul>
+<p style="text-align:center;">
+  <img src="/images/post6/Fig05_Filter_Magnitude_Responses.png" alt="Magnitude responses of the FIR and Butterworth IIR filters" style="width:92%;max-width:840px;height:auto;" />
+</p>
+
+<p><em>For the same nominal order, the Butterworth IIR gives a much sharper transition. The six-tap FIR attenuates more gradually.</em></p>
+<p>The IIR filter’s frequency response looks more attractive if stopband rejection is the only criterion. Its recursive structure achieves a relatively steep roll-off with a small number of coefficients. The FIR filter is less selective at this short length, but its symmetric coefficients provide linear phase; the waveform is delayed rather than subjected to the IIR’s frequency-dependent phase shift.</p>
+<p>Equal order does not mean equal implementation cost or an inherently fair architecture comparison. A fifth-order FIR has six feed-forward taps, whereas the fifth-order IIR uses feedback and has different computational and numerical properties. Here, holding the order fixed was useful for studying behaviour, not for declaring which structure is more hardware-efficient.</p>
+<h2 id="4-Cleaner-in-frequency-less-faithful-in-time"><a href="#4-Cleaner-in-frequency-less-faithful-in-time" class="headerlink" title="4. Cleaner in frequency, less faithful in time"></a>4. Cleaner in frequency, less faithful in time</h2><p>The filtered waveforms exposed the consequence of the different responses.</p>
+<p style="text-align:center;">
+  <img src="/images/post6/Fig06_Filtered_ECG_Comparison.png" alt="Full and zoomed ECG waveforms after causal FIR and IIR filtering" style="width:94%;max-width:860px;height:auto;" />
+</p>
+
+<p><em>The IIR suppresses more visible noise, but its output is shifted and reshaped around the narrow QRS peak. The FIR retains better alignment with the reference in this example.</em></p>
+<p style="text-align:center;">
+  <img src="/images/post6/Fig08_Filtered_Frequency_Domain_Comparison.png" alt="Frequency-domain comparison of noisy, FIR-filtered, and IIR-filtered ECG signals" style="width:94%;max-width:860px;height:auto;" />
+</p>
+
+<p><em>The Butterworth response strongly attenuates the 60 Hz component and the high-frequency band, as expected from its magnitude response.</em></p>
+<p>The quantitative results make the distinction clearer:</p>
+<div class="table-wrap">
+
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th align="right">FIR</th>
+<th align="right">IIR</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Overall RMSE (reported mV)</td>
+<td align="right"><strong>25.13</strong></td>
+<td align="right">38.20</td>
+</tr>
+<tr>
+<td>Correlation with reference</td>
+<td align="right"><strong>0.8873</strong></td>
+<td align="right">0.7431</td>
+</tr>
+<tr>
+<td>SNR improvement (dB)</td>
+<td align="right"><strong>+1.48</strong></td>
+<td align="right">−2.16</td>
+</tr>
+<tr>
+<td>R-peak timing difference (reported ms)</td>
+<td align="right"><strong>6.02</strong></td>
+<td align="right">10.19</td>
+</tr>
+<tr>
+<td>60 Hz reduction (dB)</td>
+<td align="right">4.60</td>
+<td align="right"><strong>14.36</strong></td>
+</tr>
+<tr>
+<td>High-frequency reduction (dB)</td>
+<td align="right">21.06</td>
+<td align="right"><strong>51.65</strong></td>
+</tr>
+</tbody></table>
+</div>
+
+<p>The IIR wins on spectral attenuation while losing on reference-based reconstruction metrics. Its greater suppression is not free: it also changes components that contribute to the original waveform. Conversely, the FIR’s smaller reconstruction error does not mean that a six-tap low-pass filter adequately addresses the interference.</p>
+<p>That result changed how I approached the next design. Rather than asking one low-pass filter to solve both problems, I separated the narrowband interference from the broader high-frequency noise.</p>
+<h2 id="5-A-more-selective-offline-filtering-strategy"><a href="#5-A-more-selective-offline-filtering-strategy" class="headerlink" title="5. A more selective offline filtering strategy"></a>5. A more selective offline filtering strategy</h2><p>The revised design uses two frequency-selective stages and a different application mode:</p>
+<div class="table-wrap">
+
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Configuration</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>60 Hz notch</td>
+<td>Centre: 60 Hz; bandwidth: 2 Hz; $Q\approx30$</td>
+<td>Remove the narrow spectral component without lowering the entire low-pass cutoff</td>
+</tr>
+<tr>
+<td>Butterworth low-pass</td>
+<td>Fifth order; cutoff: 80 Hz</td>
+<td>Retain more high-frequency ECG content than the 45 Hz baseline</td>
+</tr>
+<tr>
+<td>Forward–backward filtering</td>
+<td>Zero-phase application of the stages</td>
+<td>Avoid net phase delay in offline reconstruction</td>
+</tr>
+</tbody></table>
+</div>
+
+<p>The key decision was <strong>raising</strong>, not lowering, the low-pass cutoff. Once the narrow 60 Hz interference had its own filter, the broader low-pass stage no longer needed to eliminate it by heavily attenuating everything above 45 Hz. The 80 Hz cutoff offers more room for sharp ECG transitions while still reducing the higher-frequency noise band.</p>
+<p>Forward–backward filtering removes the net phase delay associated with a single causal pass. It also changes the effective magnitude response, since the signal is filtered in both directions. This matters for interpretation: the revised result benefits from both a different frequency-selective design <strong>and</strong> a non-causal application method. It is not a controlled comparison of filter topology alone.</p>
+<p style="text-align:center;">
+  <img src="/images/post6/Fig09_Improved_Filter_Comparison.png" alt="Improved ECG reconstruction with enlarged P-wave and T-wave regions" style="width:94%;max-width:860px;height:auto;" />
+</p>
+
+<p><em>The revised output follows the reference more closely in the selected beat, including the lower-amplitude regions before and after the QRS complex.</em></p>
+<h2 id="6-Results-evaluate-reconstruction-not-appearance"><a href="#6-Results-evaluate-reconstruction-not-appearance" class="headerlink" title="6. Results: evaluate reconstruction, not appearance"></a>6. Results: evaluate reconstruction, not appearance</h2><p>The final comparison uses RMSE, correlation, SNR improvement, and waveform timing. I also examined local PQRST windows instead of relying only on metrics computed across the entire recording.</p>
+<p style="text-align:center;">
+  <img src="/images/post6/fig10.png" alt="Quantitative comparison of FIR, IIR, and improved filtering results" style="width:94%;max-width:860px;height:auto;" />
+</p>
+
+<p><em>Reported reference-based metrics for the three filter designs on the evaluated 10-second record.</em></p>
+<div class="table-wrap">
+
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th align="right">FIR</th>
+<th align="right">IIR</th>
+<th align="right">Revised offline design</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Overall RMSE (reported mV)</td>
+<td align="right">25.13</td>
+<td align="right">38.20</td>
+<td align="right"><strong>1.86</strong></td>
+</tr>
+<tr>
+<td>Correlation</td>
+<td align="right">0.8873</td>
+<td align="right">0.7431</td>
+<td align="right"><strong>0.9994</strong></td>
+</tr>
+<tr>
+<td>SNR improvement (dB)</td>
+<td align="right">+1.48</td>
+<td align="right">−2.16</td>
+<td align="right"><strong>+24.11</strong></td>
+</tr>
+<tr>
+<td>R-peak timing difference (reported ms)</td>
+<td align="right">6.02</td>
+<td align="right">10.19</td>
+<td align="right"><strong>0.46</strong></td>
+</tr>
+<tr>
+<td>PQRST-window RMSE (reported mV)</td>
+<td align="right">26.31</td>
+<td align="right">40.09</td>
+<td align="right"><strong>1.52</strong></td>
+</tr>
+<tr>
+<td>PQRST-window correlation</td>
+<td align="right">0.7897</td>
+<td align="right">0.5278</td>
+<td align="right"><strong>0.9993</strong></td>
+</tr>
+</tbody></table>
+</div>
+
+<p>On this recording, the revised method reduces overall RMSE substantially and raises correlation with the supplied clean signal to 0.9994. The waveform comparison supports the same narrower conclusion: the filtered trace closely follows the reference in the inspected windows.</p>
+<p>The timing numbers require care. At 360 Hz, samples are spaced by approximately <strong>2.78 ms</strong>. A reported timing difference below one sample interval, such as 0.46 ms, depends on how peak times were estimated and should not be presented as independently demonstrated sub-sample accuracy without checking the measurement code.</p>
+<h2 id="7-What’s-more"><a href="#7-What’s-more" class="headerlink" title="7. What’s more?"></a>7. What’s more?</h2><p>This was an offline experiment on one 10 second recording, not a validated clinical denoising system. The clean reference makes error measurement possible, but such a reference is generally unavailable when processing a newly recorded ECG. The tested cutoffs also reflect the spectral content of this particular input; robustness across patients, noise levels, and different interference frequencies remains untested.</p>
+<p>There is an important implementation boundary as well. Forward–backward filtering needs future samples. A streaming embedded system or FPGA cannot reproduce the same zero-phase result with a straightforward causal pipeline. A real-time version would require an explicit latency budget, causal filter design, and evaluation of fixed-point precision and coefficient quantisation. Its results should be measured separately from this offline benchmark.</p>
+<p>I would also recheck the input amplitude calibration and the peak-timing calculations before treating the reported voltage and sub-sample timing figures as physical measurements.</p>
+<p>The main lesson from this project was a design one: strong attenuation is a property of a filter, but useful reconstruction is a property of the entire signal-processing task. Frequency-domain analysis helped identify what to suppress; time-domain comparisons and reference-based metrics showed what needed to be preserved. Both views were necessary to make a defensible design choice.</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/DSP/" rel="tag"># DSP</a>
+              <a href="/tags/MATLAB/" rel="tag"># MATLAB</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/05/20/mul/" rel="prev" title="Pipelined 8-bit Vector MAC on FPGA">
+                  <i class="fa fa-angle-left"></i> Pipelined 8-bit Vector MAC on FPGA
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/08/19/bittle-cpg-rl/" rel="next" title="Quadraped robot: Stabilising a CPG Trot on Soft Ground">
+                  Quadraped robot: Stabilising a CPG Trot on Soft Ground <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Hubo Zhu<br>朱沪博</span>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script src="/js/home-grid.js"></script>
+
+</body>
+</html>

@@ -451,4 +451,207 @@
         <tag>Robotics</tag>
       </tags>
   </entry>
+  <entry>
+    <title>ECG Denoising with Digital Filters</title>
+    <url>/2026/06/11/ECG_Denoising/</url>
+    <content><![CDATA[<p><img src="/images/post6/Fig01_Initial_Time_Domain_Comparison.png" alt="Original and noisy ECG recordings"></p>
+<p>Digital Filters designed for ECG Denoising</p>
+<span id="more"></span>
+
+<h2 id="1-Start-with-the-signal"><a href="#1-Start-with-the-signal" class="headerlink" title="1. Start with the signal"></a>1. Start with the signal</h2><p>Dataset used in this project is taken from the ECG database at: <a href="https://physionet.org/">https://physionet.org/</a><br>It contains a 10 second ECG recording sampled at 360 Hz, giving 3,600 samples, and includes a clean reference and a corrupted version used for filter evaluation. The record also contains an unusual ventricular waveform around 6 seconds, so simply smoothing the most prominent features would be a poor objective.</p>
+<p>The first figure shows how noise thickens the trace, particularly in lower-amplitude regions. The larger QRS deflections remain visible, but visibility alone says little about whether their timing and shape have survived filtering.</p>
+<p>I also used a basic peak-detection pass to estimate a nominal heart rate of <strong>72 bpm</strong> from 12 detected positive peaks over 10 seconds.</p>
+<p style="text-align:center;">
+  <img src="/images/post6/Fig03_R_Peak_Heart_Rate.png" alt="Detected positive ECG peaks and a nominal heart-rate estimate" style="width:94%;max-width:860px;height:auto;" />
+</p>
+
+<p><em>Initial positive-peak detection on the clean reference. The atypical ventricular event illustrates why a simple peak count is not a validated QRS detector or clinical heart-rate assessment.</em></p>
+<p>The peak locations also provided a way to inspect timing changes after filtering. That check is particularly useful when comparing filters with different phase responses.</p>
+<h2 id="2-Identify-the-interference-in-the-frequency-domain"><a href="#2-Identify-the-interference-in-the-frequency-domain" class="headerlink" title="2. Identify the interference in the frequency domain"></a>2. Identify the interference in the frequency domain</h2><p>Rather than choosing a cutoff from the time-domain trace alone, I inspected the one-sided discrete Fourier transform (DFT) of the noisy recording.</p>
+<p style="text-align:center;">
+  <img src="/images/post6/Fig04_DFT_Annotated_Cutoff.png" alt="DFT of the noisy ECG with the 60 Hz interference, high-frequency band, and 45 Hz cutoff marked" style="width:94%;max-width:860px;height:auto;" />
+</p>
+
+<p><em>The noisy spectrum contains a narrow component at 60 Hz and a broad elevated band at approximately 117–142 Hz.</em></p>
+<p>These are different interference problems. A narrow spectral component suggests a targeted notch; a broad high-frequency band suggests low-pass attenuation. For the initial comparison, I selected a <strong>45 Hz low-pass cutoff</strong> to suppress both components with a single filter.</p>
+<p>With a sampling frequency of $f_s&#x3D;360,\mathrm{Hz}$, the cutoff normalised to the Nyquist frequency is</p>
+<p>$$<br>W_n&#x3D;\frac{f_c}{f_s&#x2F;2}&#x3D;\frac{45}{180}&#x3D;0.25.<br>$$</p>
+<p>This is a practical first choice rather than a guarantee of optimal waveform preservation. A low-pass filter removes spectral energy according to frequency, not according to whether that energy belongs to interference or to a sharp ECG feature.</p>
+<h2 id="3-Two-fifth-order-filters-two-different-compromises"><a href="#3-Two-fifth-order-filters-two-different-compromises" class="headerlink" title="3. Two fifth-order filters, two different compromises"></a>3. Two fifth-order filters, two different compromises</h2><p>The baseline designs used the same nominal order and cutoff:</p>
+<ul>
+<li><strong>FIR:</strong> fifth-order low-pass filter designed with a Hamming window.</li>
+<li><strong>IIR:</strong> fifth-order Butterworth low-pass filter.</li>
+<li><strong>Common settings:</strong> $f_s&#x3D;360,\mathrm{Hz}$, $f_c&#x3D;45,\mathrm{Hz}$, applied causally.</li>
+</ul>
+<p style="text-align:center;">
+  <img src="/images/post6/Fig05_Filter_Magnitude_Responses.png" alt="Magnitude responses of the FIR and Butterworth IIR filters" style="width:92%;max-width:840px;height:auto;" />
+</p>
+
+<p><em>For the same nominal order, the Butterworth IIR gives a much sharper transition. The six-tap FIR attenuates more gradually.</em></p>
+<p>The IIR filter’s frequency response looks more attractive if stopband rejection is the only criterion. Its recursive structure achieves a relatively steep roll-off with a small number of coefficients. The FIR filter is less selective at this short length, but its symmetric coefficients provide linear phase; the waveform is delayed rather than subjected to the IIR’s frequency-dependent phase shift.</p>
+<p>Equal order does not mean equal implementation cost or an inherently fair architecture comparison. A fifth-order FIR has six feed-forward taps, whereas the fifth-order IIR uses feedback and has different computational and numerical properties. Here, holding the order fixed was useful for studying behaviour, not for declaring which structure is more hardware-efficient.</p>
+<h2 id="4-Cleaner-in-frequency-less-faithful-in-time"><a href="#4-Cleaner-in-frequency-less-faithful-in-time" class="headerlink" title="4. Cleaner in frequency, less faithful in time"></a>4. Cleaner in frequency, less faithful in time</h2><p>The filtered waveforms exposed the consequence of the different responses.</p>
+<p style="text-align:center;">
+  <img src="/images/post6/Fig06_Filtered_ECG_Comparison.png" alt="Full and zoomed ECG waveforms after causal FIR and IIR filtering" style="width:94%;max-width:860px;height:auto;" />
+</p>
+
+<p><em>The IIR suppresses more visible noise, but its output is shifted and reshaped around the narrow QRS peak. The FIR retains better alignment with the reference in this example.</em></p>
+<p style="text-align:center;">
+  <img src="/images/post6/Fig08_Filtered_Frequency_Domain_Comparison.png" alt="Frequency-domain comparison of noisy, FIR-filtered, and IIR-filtered ECG signals" style="width:94%;max-width:860px;height:auto;" />
+</p>
+
+<p><em>The Butterworth response strongly attenuates the 60 Hz component and the high-frequency band, as expected from its magnitude response.</em></p>
+<p>The quantitative results make the distinction clearer:</p>
+<div class="table-wrap">
+
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th align="right">FIR</th>
+<th align="right">IIR</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Overall RMSE (reported mV)</td>
+<td align="right"><strong>25.13</strong></td>
+<td align="right">38.20</td>
+</tr>
+<tr>
+<td>Correlation with reference</td>
+<td align="right"><strong>0.8873</strong></td>
+<td align="right">0.7431</td>
+</tr>
+<tr>
+<td>SNR improvement (dB)</td>
+<td align="right"><strong>+1.48</strong></td>
+<td align="right">−2.16</td>
+</tr>
+<tr>
+<td>R-peak timing difference (reported ms)</td>
+<td align="right"><strong>6.02</strong></td>
+<td align="right">10.19</td>
+</tr>
+<tr>
+<td>60 Hz reduction (dB)</td>
+<td align="right">4.60</td>
+<td align="right"><strong>14.36</strong></td>
+</tr>
+<tr>
+<td>High-frequency reduction (dB)</td>
+<td align="right">21.06</td>
+<td align="right"><strong>51.65</strong></td>
+</tr>
+</tbody></table>
+</div>
+
+<p>The IIR wins on spectral attenuation while losing on reference-based reconstruction metrics. Its greater suppression is not free: it also changes components that contribute to the original waveform. Conversely, the FIR’s smaller reconstruction error does not mean that a six-tap low-pass filter adequately addresses the interference.</p>
+<p>That result changed how I approached the next design. Rather than asking one low-pass filter to solve both problems, I separated the narrowband interference from the broader high-frequency noise.</p>
+<h2 id="5-A-more-selective-offline-filtering-strategy"><a href="#5-A-more-selective-offline-filtering-strategy" class="headerlink" title="5. A more selective offline filtering strategy"></a>5. A more selective offline filtering strategy</h2><p>The revised design uses two frequency-selective stages and a different application mode:</p>
+<div class="table-wrap">
+
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Configuration</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>60 Hz notch</td>
+<td>Centre: 60 Hz; bandwidth: 2 Hz; $Q\approx30$</td>
+<td>Remove the narrow spectral component without lowering the entire low-pass cutoff</td>
+</tr>
+<tr>
+<td>Butterworth low-pass</td>
+<td>Fifth order; cutoff: 80 Hz</td>
+<td>Retain more high-frequency ECG content than the 45 Hz baseline</td>
+</tr>
+<tr>
+<td>Forward–backward filtering</td>
+<td>Zero-phase application of the stages</td>
+<td>Avoid net phase delay in offline reconstruction</td>
+</tr>
+</tbody></table>
+</div>
+
+<p>The key decision was <strong>raising</strong>, not lowering, the low-pass cutoff. Once the narrow 60 Hz interference had its own filter, the broader low-pass stage no longer needed to eliminate it by heavily attenuating everything above 45 Hz. The 80 Hz cutoff offers more room for sharp ECG transitions while still reducing the higher-frequency noise band.</p>
+<p>Forward–backward filtering removes the net phase delay associated with a single causal pass. It also changes the effective magnitude response, since the signal is filtered in both directions. This matters for interpretation: the revised result benefits from both a different frequency-selective design <strong>and</strong> a non-causal application method. It is not a controlled comparison of filter topology alone.</p>
+<p style="text-align:center;">
+  <img src="/images/post6/Fig09_Improved_Filter_Comparison.png" alt="Improved ECG reconstruction with enlarged P-wave and T-wave regions" style="width:94%;max-width:860px;height:auto;" />
+</p>
+
+<p><em>The revised output follows the reference more closely in the selected beat, including the lower-amplitude regions before and after the QRS complex.</em></p>
+<h2 id="6-Results-evaluate-reconstruction-not-appearance"><a href="#6-Results-evaluate-reconstruction-not-appearance" class="headerlink" title="6. Results: evaluate reconstruction, not appearance"></a>6. Results: evaluate reconstruction, not appearance</h2><p>The final comparison uses RMSE, correlation, SNR improvement, and waveform timing. I also examined local PQRST windows instead of relying only on metrics computed across the entire recording.</p>
+<p style="text-align:center;">
+  <img src="/images/post6/fig10.png" alt="Quantitative comparison of FIR, IIR, and improved filtering results" style="width:94%;max-width:860px;height:auto;" />
+</p>
+
+<p><em>Reported reference-based metrics for the three filter designs on the evaluated 10-second record.</em></p>
+<div class="table-wrap">
+
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th align="right">FIR</th>
+<th align="right">IIR</th>
+<th align="right">Revised offline design</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Overall RMSE (reported mV)</td>
+<td align="right">25.13</td>
+<td align="right">38.20</td>
+<td align="right"><strong>1.86</strong></td>
+</tr>
+<tr>
+<td>Correlation</td>
+<td align="right">0.8873</td>
+<td align="right">0.7431</td>
+<td align="right"><strong>0.9994</strong></td>
+</tr>
+<tr>
+<td>SNR improvement (dB)</td>
+<td align="right">+1.48</td>
+<td align="right">−2.16</td>
+<td align="right"><strong>+24.11</strong></td>
+</tr>
+<tr>
+<td>R-peak timing difference (reported ms)</td>
+<td align="right">6.02</td>
+<td align="right">10.19</td>
+<td align="right"><strong>0.46</strong></td>
+</tr>
+<tr>
+<td>PQRST-window RMSE (reported mV)</td>
+<td align="right">26.31</td>
+<td align="right">40.09</td>
+<td align="right"><strong>1.52</strong></td>
+</tr>
+<tr>
+<td>PQRST-window correlation</td>
+<td align="right">0.7897</td>
+<td align="right">0.5278</td>
+<td align="right"><strong>0.9993</strong></td>
+</tr>
+</tbody></table>
+</div>
+
+<p>On this recording, the revised method reduces overall RMSE substantially and raises correlation with the supplied clean signal to 0.9994. The waveform comparison supports the same narrower conclusion: the filtered trace closely follows the reference in the inspected windows.</p>
+<p>The timing numbers require care. At 360 Hz, samples are spaced by approximately <strong>2.78 ms</strong>. A reported timing difference below one sample interval, such as 0.46 ms, depends on how peak times were estimated and should not be presented as independently demonstrated sub-sample accuracy without checking the measurement code.</p>
+<h2 id="7-What’s-more"><a href="#7-What’s-more" class="headerlink" title="7. What’s more?"></a>7. What’s more?</h2><p>This was an offline experiment on one 10 second recording, not a validated clinical denoising system. The clean reference makes error measurement possible, but such a reference is generally unavailable when processing a newly recorded ECG. The tested cutoffs also reflect the spectral content of this particular input; robustness across patients, noise levels, and different interference frequencies remains untested.</p>
+<p>There is an important implementation boundary as well. Forward–backward filtering needs future samples. A streaming embedded system or FPGA cannot reproduce the same zero-phase result with a straightforward causal pipeline. A real-time version would require an explicit latency budget, causal filter design, and evaluation of fixed-point precision and coefficient quantisation. Its results should be measured separately from this offline benchmark.</p>
+<p>I would also recheck the input amplitude calibration and the peak-timing calculations before treating the reported voltage and sub-sample timing figures as physical measurements.</p>
+<p>The main lesson from this project was a design one: strong attenuation is a property of a filter, but useful reconstruction is a property of the entire signal-processing task. Frequency-domain analysis helped identify what to suppress; time-domain comparisons and reference-based metrics showed what needed to be preserved. Both views were necessary to make a defensible design choice.</p>
+]]></content>
+      <categories>
+        <category>Projects</category>
+      </categories>
+      <tags>
+        <tag>DSP</tag>
+        <tag>MATLAB</tag>
+      </tags>
+  </entry>
 </search>
